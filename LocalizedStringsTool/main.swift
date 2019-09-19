@@ -12,8 +12,8 @@ import Foundation
 /*
  + получить текущую папку или прочитать путь
  + получить список всех .swift, .h, .m файлов
- - прочитать из каждого строки
- - составить сет из этих ключей “usedKeys”
+ + прочитать из каждого строки
+ + составить сет из этих ключей “usedKeys”
  - получить список файлов .strings
  - составить массив из ключей “availableKeys” для каждого языка
  - “usedKeys” -   “availableKeys” = ключи без перевода
@@ -53,28 +53,38 @@ while let element = enumerator?.nextObject() as? String {
 // print("hSet", hSet)
 // print("mSet", mSet)
 
-let swiftPattern = #""(\S*)".localized()"#
+var swiftStrings = Set<String>()
+var mStrings = Set<String>()
 
-let text2 = try String(contentsOf: URL(fileURLWithPath: path + "/" + swiftSet.first!), encoding: .utf8)
+let swiftPattern = #""(\S*)".localized()"#
+//lang(@"shake_find_devices")
+let objCPattern =  #"lang\(@"(\S*)"\)"#
 
 func matchingStrings(regex: String, text: String) -> [String] {
     guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
 
-//    let nsString = self as NSString
     let nsText = text as NSString
     let results = regex.matches(in: text, options: [], range: NSMakeRange(0, text.count))
-//    print(results)
-//    return []
+
     return results.map { result in
-//        (0..<result.numberOfRanges)
-//            .map {
+
         result.range(at: 1).location != NSNotFound
             ? nsText.substring(with: result.range(at: 1))
             : ""
-//            }
     }
 }
 
-print(matchingStrings(regex: swiftPattern, text: text2))
+swiftSet.forEach { swiftFilePath in
+    if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + swiftFilePath), encoding: .utf8) {
+        matchingStrings(regex: swiftPattern, text: fileText).forEach { swiftStrings.insert($0) }
+    }
+}
 
-// print(text2)
+mSet.forEach { mFilePath in
+    if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + mFilePath), encoding: .utf8) {
+        matchingStrings(regex: objCPattern, text: fileText).forEach { mStrings.insert($0) }
+    }
+}
+
+print(swiftStrings)
+print(mStrings)
