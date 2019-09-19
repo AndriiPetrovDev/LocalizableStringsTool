@@ -49,9 +49,9 @@ while let element = enumerator?.nextObject() as? String {
     }
 }
 
-//print("swiftSet", swiftSet)
-//print("hSet", hSet)
-//print("mSet", mSet)
+// print("swiftSet", swiftSet)
+// print("hSet", hSet)
+// print("mSet", mSet)
 
 let swiftPattern = #""(\S*)".localized()"#
 
@@ -68,9 +68,9 @@ func matchingStrings(regex: String, text: String) -> [String] {
     return results.map { result in
 //        (0..<result.numberOfRanges)
 //            .map {
-                result.range(at: 1).location != NSNotFound
-                    ? nsText.substring(with: result.range(at: 1))
-                    : ""
+        result.range(at: 1).location != NSNotFound
+            ? nsText.substring(with: result.range(at: 1))
+            : ""
 //            }
     }
 }
