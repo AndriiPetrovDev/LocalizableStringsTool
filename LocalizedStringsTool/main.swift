@@ -32,6 +32,7 @@ let enumerator = manager.enumerator(atPath: path)
 var swiftSet = Set<String>()
 var hSet = Set<String>()
 var mSet = Set<String>()
+var localizableDict = [String]()
 
 // print(manager)
 
@@ -46,6 +47,8 @@ while let element = enumerator?.nextObject() as? String {
         hSet.insert(element)
     } else if element.hasSuffix(".m") {
         mSet.insert(element)
+    } else if element.hasSuffix(".lproj") {
+        localizableDict.append(element)
     }
 }
 
@@ -55,10 +58,12 @@ while let element = enumerator?.nextObject() as? String {
 
 var swiftStrings = Set<String>()
 var mStrings = Set<String>()
+var localizedStrings = [String: [String]]()
 
-let swiftPattern = #""(\S*)".localized()"#
-//lang(@"shake_find_devices")
-let objCPattern =  #"lang\(@"(\S*)"\)"#
+let swiftPattern = #""(\S*)".localized\(\)"#
+// lang(@"shake_find_devices")
+let objCPattern = #"lang\(@"(\S*)"\)"#
+let localizedStringPattern = #""(\S*)" = ".*";"#
 
 func matchingStrings(regex: String, text: String) -> [String] {
     guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
@@ -67,10 +72,11 @@ func matchingStrings(regex: String, text: String) -> [String] {
     let results = regex.matches(in: text, options: [], range: NSMakeRange(0, text.count))
 
     return results.map { result in
-
-        result.range(at: 1).location != NSNotFound
+        let aaa = result.range(at: 1).location != NSNotFound
             ? nsText.substring(with: result.range(at: 1))
             : ""
+        print(aaa)
+        return aaa
     }
 }
 
@@ -86,5 +92,16 @@ mSet.forEach { mFilePath in
     }
 }
 
+localizableDict.forEach { dirPath in
+    let paath = path + "/" + dirPath + "/" + "Localizable.strings"
+    print(paath)
+    
+    if let fileText = try? String(contentsOf: URL(fileURLWithPath: paath), encoding: .utf16) {
+          localizedStrings[dirPath] = matchingStrings(regex: localizedStringPattern, text: fileText)
+    }
+}
+
 print(swiftStrings)
 print(mStrings)
+
+print(localizedStrings)
