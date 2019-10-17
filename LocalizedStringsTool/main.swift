@@ -16,16 +16,21 @@ import Foundation
  + составить сет из этих ключей “usedKeys”
  + получить список файлов .strings
  + составить массив из ключей “availableKeys” для каждого языка
- + “usedKeys” -   “availableKeys” = ключи без перевода
- + “availableKeys” - “usedKeys”  =  неиспользуемые ключи
+ + “usedKeys” -   “availableKeys” = ключи без перевода (точно)
+ + ключи без перевода (возможно)
+ + “availableKeys” - “usedKeys” = неиспользуемые ключи
  + дублирование переводов
- - поддержка обж с
- - добавить все исключения из моно
+ + поддержка обж с
+ + добавить все исключения из моно
+ - оптимизация потребления памяти
+ - добавить все исключения из обычных проектов
  - указание пути
  - рефакторинг
  - кастомные правила для ключей
  - кастомные исключения
- - разные ключи в файлах перевода
+ - добавить дефольные настройки
+ - разные ключи в разных файлах перевода
+ - загрузка настроек из файла
 
  */
 
@@ -38,8 +43,8 @@ let allUntranslatedStrings = false
 let differentKeysInTRanslations = true
 
 let argCount = CommandLine.argc
-let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Koto"
-// let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono"
+// let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Koto"
+let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono"
 
 var swiftFilePathSet = Set<String>()
 var hFilePathSet = Set<String>()
@@ -81,8 +86,26 @@ let swiftKeyPattern = #""(?<KEY>\S*)".localized\(\)"#
 let objCKeyPattern = #"lang\(@"(?<KEY>\S*)"\)"#
 let localizedPairPattern = #""(?<KEY>\S*)" = "(?<TRANSLATION>(.*)\s?)";"#
 
-let allObjCStringPattern = #"(?:@"(?<KEY>(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:@"(?<ANYSTRING>\S*)")*"#
-/// Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono/app/View Controllers/Payments/TheOneCurrencyRate/ CardActivationForSingleCourse/CardActivationForSingleCourseViewModel.swift:            emojiImage = #imageLiteral(resourceName: "eur_flag")
+var allObjCStringPattern = ""
+
+let objCExceptions = [
+    #"setAnimation:"#,
+    #".animation\("#,
+    #"configureWithAnimation:"#,
+    #"secondAnimation:"#,
+    #"imageNamed:"#,
+    #"userInfo\["#,
+    #".appData\["#,
+    #"addAnimationViewFromFirstAnimation:"#,
+]
+
+objCExceptions.forEach { exception in
+    allObjCStringPattern += #"(?<!("# + exception + #"))"#
+}
+
+allObjCStringPattern += #"(?:@"(?<KEY>(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:@"(?<ANYSTRING>\S*)")*"#
+
+var allSwiftStringPattern = ""
 let swiftExceptions = [
     #"imageLiteral\(resourceName: "#,
     #"forResource: "#,
@@ -96,17 +119,13 @@ let swiftExceptions = [
     #"withAnimation: "#,
     #"Animation.named\("#,
     #"#imageLiteral\(resourceName: "#,
+    #".animation\("#,
 ]
-
-var allSwiftStringPattern = ""
-
 swiftExceptions.forEach { exception in
     allSwiftStringPattern += #"(?<!("# + exception + #"))"#
 }
 
 allSwiftStringPattern += #"(?:"(?<KEY>(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:"(?<ANYSTRING>\S*)")*"#
-
-print(allSwiftStringPattern)
 
 func matchingStrings(regex: String, text: String, names: [String] = ["KEY"]) -> [[String]] {
     guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
@@ -128,7 +147,10 @@ func matchingStrings(regex: String, text: String, names: [String] = ["KEY"]) -> 
 
 swiftFilePathSet.forEach { swiftFilePath in
     if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + swiftFilePath), encoding: .utf8) {
-        matchingStrings(regex: swiftKeyPattern, text: fileText).map { $0.first }.compactMap { $0 }.forEach { swiftKeys.insert($0) }
+        matchingStrings(regex: swiftKeyPattern, text: fileText)
+            .map { $0.first }
+            .compactMap { $0 }
+            .forEach { swiftKeys.insert($0) }
         if allUntranslatedStrings {
             matchingStrings(regex: allSwiftStringPattern, text: fileText, names: ["ANYSTRING"])
                 .map { $0.first }
@@ -144,7 +166,10 @@ swiftFilePathSet.forEach { swiftFilePath in
 
 mFilePathSet.forEach { mFilePath in
     if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + mFilePath), encoding: .utf8) {
-        matchingStrings(regex: objCKeyPattern, text: fileText).map { $0.first }.compactMap { $0 }.forEach { mKeys.insert($0) }
+        matchingStrings(regex: objCKeyPattern, text: fileText)
+            .map { $0.first }
+            .compactMap { $0 }
+            .forEach { mKeys.insert($0) }
         if allUntranslatedStrings {
             matchingStrings(regex: allObjCStringPattern, text: fileText, names: ["ANYSTRING"])
                 .map { $0.first }
@@ -230,13 +255,22 @@ if translationDuplication {
 // dump(allProbablyKeys)
 
 print("keys without translation")
-let keysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.subtracting($0) }
+let keysWithoutTranslation = langKeysDict.mapValues { combinedUsedLocalizedKeys.subtracting($0) }
 
 dump(keysWithoutTranslation)
 
+print("probably keys without translation")
+let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.subtracting($0).subtracting(combinedUsedLocalizedKeys.subtracting($0)) }
+
+dump(probablyKeysWithoutTranslation)
 
 /*
  Koto
+
+ - "registration_limit_risk_decline_debit"
+ - "registration_limit_installment_agreement"
+ - "registration_limit_risk_decline_reason"
+
  "registration_limit_installment_agreement"
  "payment_undo"
  "p2p_success_save_card"
@@ -247,4 +281,18 @@ dump(keysWithoutTranslation)
  "payment_installment"
  "registration_limit_risk_decline_debit"
  "payment_deposit_details"
+
+ Mono:
+ - "monthes_amount"
+ - "A"
+ - "contacts"
+ - "Messenger"
+ - "Email"
+ - "number_payments"
+ - "Telegram"
+ - ""
+ - "number_payments_two"
+ - "more_about_info_processing_title"
+ - "Viber"
+ - "categories"
  */
