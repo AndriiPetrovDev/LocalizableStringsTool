@@ -43,8 +43,11 @@ let allUntranslatedStrings = false
 let differentKeysInTRanslations = true
 
 let argCount = CommandLine.argc
+
+// let path = "/Users/andrewmbp-office/app-ios-client/Koto"
+let path = "/Users/andrewmbp-office/app-ios-client/Mono"
 // let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Koto"
-let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono"
+// let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono"
 
 var swiftFilePathSet = Set<String>()
 var hFilePathSet = Set<String>()
@@ -146,66 +149,72 @@ func matchingStrings(regex: String, text: String, names: [String] = ["KEY"]) -> 
 }
 
 swiftFilePathSet.forEach { swiftFilePath in
-    if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + swiftFilePath), encoding: .utf8) {
-        matchingStrings(regex: swiftKeyPattern, text: fileText)
-            .map { $0.first }
-            .compactMap { $0 }
-            .forEach { swiftKeys.insert($0) }
-        if allUntranslatedStrings {
-            matchingStrings(regex: allSwiftStringPattern, text: fileText, names: ["ANYSTRING"])
+    autoreleasepool {
+        if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + swiftFilePath), encoding: .utf8) {
+            matchingStrings(regex: swiftKeyPattern, text: fileText)
                 .map { $0.first }
                 .compactMap { $0 }
-                .forEach { allSwiftStrings.insert($0) }
+                .forEach { swiftKeys.insert($0) }
+            if allUntranslatedStrings {
+                matchingStrings(regex: allSwiftStringPattern, text: fileText, names: ["ANYSTRING"])
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { allSwiftStrings.insert($0) }
+            }
+            matchingStrings(regex: allSwiftStringPattern, text: fileText)
+                .map { $0.first }
+                .compactMap { $0 }
+                .forEach { allProbablyKeys.insert($0) }
         }
-        matchingStrings(regex: allSwiftStringPattern, text: fileText)
-            .map { $0.first }
-            .compactMap { $0 }
-            .forEach { allProbablyKeys.insert($0) }
     }
 }
 
 mFilePathSet.forEach { mFilePath in
-    if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + mFilePath), encoding: .utf8) {
-        matchingStrings(regex: objCKeyPattern, text: fileText)
-            .map { $0.first }
-            .compactMap { $0 }
-            .forEach { mKeys.insert($0) }
-        if allUntranslatedStrings {
-            matchingStrings(regex: allObjCStringPattern, text: fileText, names: ["ANYSTRING"])
+    autoreleasepool {
+        if let fileText = try? String(contentsOf: URL(fileURLWithPath: path + "/" + mFilePath), encoding: .utf8) {
+            matchingStrings(regex: objCKeyPattern, text: fileText)
                 .map { $0.first }
                 .compactMap { $0 }
-                .forEach { allSwiftStrings.insert($0) }
+                .forEach { mKeys.insert($0) }
+            if allUntranslatedStrings {
+                matchingStrings(regex: allObjCStringPattern, text: fileText, names: ["ANYSTRING"])
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { allSwiftStrings.insert($0) }
+            }
+            matchingStrings(regex: allObjCStringPattern, text: fileText)
+                .map { $0.first }
+                .compactMap { $0 }
+                .forEach { allProbablyKeys.insert($0) }
         }
-        matchingStrings(regex: allObjCStringPattern, text: fileText)
-            .map { $0.first }
-            .compactMap { $0 }
-            .forEach { allProbablyKeys.insert($0) }
     }
 }
 
 dump(allProbablyKeys)
 
 localizableFilePathDict.forEach { dirPath in
-    let paath = (path + "/" + dirPath + "/" + "Localizable.strings")
-    do {
-        // Koto utf8, Mono utf16
-        let fileText8 = try? String(contentsOf: URL(fileURLWithPath: paath), encoding: .utf8)
-        let fileText16 = try? String(contentsOf: URL(fileURLWithPath: paath), encoding: .utf16)
-        let arr = [fileText8, fileText16].compactMap { $0 }
+    autoreleasepool {
+        let paath = (path + "/" + dirPath + "/" + "Localizable.strings")
+        do {
+            // Koto utf8, Mono utf16
+            let fileText8 = try? String(contentsOf: URL(fileURLWithPath: paath), encoding: .utf8)
+            let fileText16 = try? String(contentsOf: URL(fileURLWithPath: paath), encoding: .utf16)
+            let arr = [fileText8, fileText16].compactMap { $0 }
 
-        if let fileText = arr.first {
-            let element: [String: String] = matchingStrings(regex: localizedPairPattern, text: fileText, names: ["KEY", "TRANSLATION"])
-                .map { (smallArray: [String]) -> [String: String] in
-                    [smallArray.first ?? "": smallArray.last ?? ""]
-                }
-                .reduce([String: String]()) { (result: [String: String], value: [String: String]) in
-                    var newDict = result
-                    newDict[value.keys.first ?? ""] = value.values.first ?? ""
+            if let fileText = arr.first {
+                let element: [String: String] = matchingStrings(regex: localizedPairPattern, text: fileText, names: ["KEY", "TRANSLATION"])
+                    .map { (smallArray: [String]) -> [String: String] in
+                        [smallArray.first ?? "": smallArray.last ?? ""]
+                    }
+                    .reduce([String: String]()) { (result: [String: String], value: [String: String]) in
+                        var newDict = result
+                        newDict[value.keys.first ?? ""] = value.values.first ?? ""
 
-                    return newDict
-                }
+                        return newDict
+                    }
 
-            localizationsDict[dirPath] = element
+                localizationsDict[dirPath] = element
+            }
         }
     }
 }
@@ -267,32 +276,22 @@ dump(probablyKeysWithoutTranslation)
 /*
  Koto
 
- - "registration_limit_risk_decline_debit"
- - "registration_limit_installment_agreement"
  - "registration_limit_risk_decline_reason"
-
- "registration_limit_installment_agreement"
- "payment_undo"
- "p2p_success_save_card"
- "registration_limit_risk_decline_reason"
- "payment_deposit_property_details"
- "payment_deposit_percent_details"
- "payment_notification"
- "payment_installment"
- "registration_limit_risk_decline_debit"
- "payment_deposit_details"
+ - "registration_limit_installment_agreement"
+ - "registration_limit_risk_decline_debit"
 
  Mono:
- - "monthes_amount"
- - "A"
- - "contacts"
- - "Messenger"
- - "Email"
- - "number_payments"
- - "Telegram"
- - ""
- - "number_payments_two"
- - "more_about_info_processing_title"
- - "Viber"
  - "categories"
+ - "Messenger"
+ - "Viber"
+ - "number_payments"
+ - "contacts"
+ - "Telegram"
+ - "A"
+ - "more_about_info_processing_title"
+ - ""
+ - "Email"
+ - "number_payments_two"
+ - "monthes_amount"
+ - "registration_foreign_passport_subtitle"
  */
