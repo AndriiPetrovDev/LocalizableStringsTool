@@ -22,7 +22,7 @@ import Foundation
  + дублирование переводов
  + поддержка обж с
  + добавить все исключения из моно
- - оптимизация потребления памяти
+ + оптимизация потребления памяти
  - добавить все исключения из обычных проектов
  - указание пути
  - рефакторинг
@@ -31,6 +31,7 @@ import Foundation
  - добавить дефольные настройки
  - разные ключи в разных файлах перевода
  - загрузка настроек из файла
+ - отображать прогресс
 
  */
 
@@ -42,17 +43,31 @@ let untranslatedKeys = true
 let allUntranslatedStrings = false
 let differentKeysInTRanslations = true
 
+"Enter your project root directory path or press Return to use current directory"
+"Enter your LocalizedStringsTool.plist path or press Return to search it in current directory"
+"Settings file LocalizedStringsTool.plist not found. Use default settings? Y/N"
+
+
+
+
+let executableName = CommandLine.arguments[0] as NSString
+print(executableName)
+
 let argCount = CommandLine.argc
 
 // let path = "/Users/andrewmbp-office/app-ios-client/Koto"
-let path = "/Users/andrewmbp-office/app-ios-client/Mono"
+let path = "/Users/andrej/Documents/ftband-bank-ios"
 // let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Koto"
 // let path = "/Users/Shared/Relocated Items/Security/develop/MONOBANK/app-ios-client/Mono"
+let settingsFilePath = "/Users/Shared/Previously Relocated Items/Security/develop/LocalizedStringsTool/LocalizedStringsTool/LocalizedStringsTool.plist"
 
 var swiftFilePathSet = Set<String>()
 var hFilePathSet = Set<String>()
 var mFilePathSet = Set<String>()
 var localizableFilePathDict = [String]()
+
+let settingsFile = URL(fileURLWithPath: settingsFilePath)
+
 
 let manager = FileManager.default
 let enumerator = manager.enumerator(atPath: path)
@@ -85,8 +100,9 @@ var allProbablyKeys = Set<String>()
 var localizationsDict = [String: [String: String]]()
 
 let swiftKeyPattern = #""(?<KEY>\S*)".localized\(\)"#
+let swiftOldKeyPattern = #"lang\("(?<KEY>\S*)"\)"#
 
-let objCKeyPattern = #"lang\(@"(?<KEY>\S*)"\)"#
+let objCKeyPattern = #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<KEY>\S*)"\)"#
 let localizedPairPattern = #""(?<KEY>\S*)" = "(?<TRANSLATION>(.*)\s?)";"#
 
 var allObjCStringPattern = ""
@@ -121,7 +137,6 @@ let swiftExceptions = [
     #"animation: "#,
     #"withAnimation: "#,
     #"Animation.named\("#,
-    #"#imageLiteral\(resourceName: "#,
     #".animation\("#,
 ]
 swiftExceptions.forEach { exception in
@@ -155,6 +170,12 @@ swiftFilePathSet.forEach { swiftFilePath in
                 .map { $0.first }
                 .compactMap { $0 }
                 .forEach { swiftKeys.insert($0) }
+            
+            matchingStrings(regex: swiftOldKeyPattern, text: fileText)
+                .map { $0.first }
+                .compactMap { $0 }
+                .forEach { swiftKeys.insert($0) }
+            
             if allUntranslatedStrings {
                 matchingStrings(regex: allSwiftStringPattern, text: fileText, names: ["ANYSTRING"])
                     .map { $0.first }
@@ -253,8 +274,9 @@ if translationDuplication {
     dump(duplicatedTranslations)
 }
 
-// print("\n\n")
-// print("extraTranslations")
+ print("\n\n")
+ print("extraTranslations")
+ print(extraTranslations)
 // dump(extraTranslations)
 
 // print("allSwiftStrings")
@@ -266,12 +288,12 @@ if translationDuplication {
 print("keys without translation")
 let keysWithoutTranslation = langKeysDict.mapValues { combinedUsedLocalizedKeys.subtracting($0) }
 
-dump(keysWithoutTranslation)
+print(keysWithoutTranslation)
 
 print("probably keys without translation")
 let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.subtracting($0).subtracting(combinedUsedLocalizedKeys.subtracting($0)) }
 
-dump(probablyKeysWithoutTranslation)
+print(probablyKeysWithoutTranslation)
 
 /*
  Koto

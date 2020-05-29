@@ -23,6 +23,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		7737BE59236F5181002A42C9 /* LocalizedStringsTool.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = LocalizedStringsTool.plist; sourceTree = "<group>"; };
 		77FA48CA2333C9B80014651F /* LocalizedStringsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LocalizedStringsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		77FA48CD2333C9B80014651F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -58,6 +59,7 @@
 			isa = PBXGroup;
 			children = (
 				77FA48CD2333C9B80014651F /* main.swift */,
+				7737BE59236F5181002A42C9 /* LocalizedStringsTool.plist */,
 			);
 			path = LocalizedStringsTool;
 			sourceTree = "<group>";
