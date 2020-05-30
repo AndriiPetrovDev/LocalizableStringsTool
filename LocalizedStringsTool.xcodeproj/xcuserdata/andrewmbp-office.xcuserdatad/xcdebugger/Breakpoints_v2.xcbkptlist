@@ -7,32 +7,48 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "BCEDA632-53D6-4F83-8717-BF1E6429B5B2"
+            uuid = "399BD32A-2128-4256-8690-43B644A72A86"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LocalizedStringsTool/main.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "61"
-            endingLineNumber = "61"
-            landmarkName = "readPlist()"
+            startingLineNumber = "203"
+            endingLineNumber = "203"
+            landmarkName = "matchingStrings(regex:text:names:)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
          <BreakpointContent
-            uuid = "E2E3B81B-2CEF-4C9D-9A19-B190A6A85760"
+            uuid = "531FE2BC-C495-4AE5-922A-FFB9FD3CAFB9"
             shouldBeEnabled = "Yes"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "LocalizedStringsTool/main.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "63"
-            endingLineNumber = "63"
-            landmarkName = "readPlist()"
+            startingLineNumber = "208"
+            endingLineNumber = "208"
+            landmarkName = "matchingStrings(regex:text:names:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "9149BD03-3396-484C-98CA-FB45468D6D91"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "211"
+            endingLineNumber = "211"
+            landmarkName = "matchingStrings(regex:text:names:)"
             landmarkType = "9">
          </BreakpointContent>
       </BreakpointProxy>

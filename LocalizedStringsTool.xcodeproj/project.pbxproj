@@ -25,7 +25,6 @@
 /* Begin PBXFileReference section */
 		77FA48CA2333C9B80014651F /* LocalizedStringsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LocalizedStringsTool; sourceTree = BUILT_PRODUCTS_DIR; };
 		77FA48CD2333C9B80014651F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
-		F4602BE62481C1B6007831C0 /* LocalizedStringsTool.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = LocalizedStringsTool.plist; path = "../Library/Developer/Xcode/DerivedData/LocalizedStringsTool-blwtdzgdconutmbtojnabaztzxrf/Build/Products/Debug/LocalizedStringsTool.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -44,7 +43,6 @@
 			children = (
 				77FA48CC2333C9B80014651F /* LocalizedStringsTool */,
 				77FA48CB2333C9B80014651F /* Products */,
-				F4602BE62481C1B6007831C0 /* LocalizedStringsTool.plist */,
 			);
 			sourceTree = "<group>";
 		};
