@@ -27,15 +27,15 @@ import Foundation
  + получить инфу со stringdict
  + сортировка как в файле с переводами
  + сепараторы секций переводов как в оригинале
+ + добавить дефольные настройки
+ + загрузка настроек из файла
+ + разные ключи в разных файлах перевода
  - добавить все исключения из обычных проектов
  - рефакторинг
  - кастомные правила для ключей
  + кастомные исключения
- + добавить дефольные настройки
- + разные ключи в разных файлах перевода
- + загрузка настроек из файла
  - csv export
- - отображать прогресс
+ + отображать прогресс
 
  */
 
@@ -67,6 +67,33 @@ struct Settings: Decodable {
 var settings: Settings!
 
 var projectPath = "/Users/andrewmbp-office/ftband-bank-ios"
+
+var commonFilesCount = 0
+var currentFilesCountHandled = 0
+
+private func increaseProgress() {
+    currentFilesCountHandled += 1
+
+    let maxLength = 50
+    var currentLength = (maxLength * currentFilesCountHandled) / commonFilesCount
+
+
+    currentLength = max(0, currentLength)
+
+    var progressString = ""
+
+    for _ in 0 ... currentLength {
+        progressString += "■"
+    }
+
+    for _ in 0 ... maxLength - currentLength {
+        progressString += "□"
+    }
+
+    let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
+
+    print(resultString)
+}
 
 private func readPlist() {
 
@@ -127,12 +154,13 @@ private func getAllFilesPaths() {
                 shouldHandlePath = false
             }
         }
+
         if shouldHandlePath {
-            if element.hasSuffix(".swift") {
+            if element.hasSuffix(".swift") && settings.shouldAnalyzeSwift {
                 swiftFilePathSet.insert(element)
-            } else if element.hasSuffix(".h") {
+            } else if element.hasSuffix(".h") && settings.shouldAnalyzeObjC {
                 hFilePathSet.insert(element)
-            } else if element.hasSuffix(".m") {
+            } else if element.hasSuffix(".m") && settings.shouldAnalyzeObjC {
                 mFilePathSet.insert(element)
             } else if element.hasSuffix("Localizable.strings") {
                 localizableFilePathDict.append(element)
@@ -140,6 +168,7 @@ private func getAllFilesPaths() {
                 localizableDictFilePathDict.append(element)
             }
         }
+        commonFilesCount = swiftFilePathSet.count + hFilePathSet.count + mFilePathSet.count + localizableFilePathDict.count + localizableDictFilePathDict.count
     }
 }
 
@@ -233,6 +262,7 @@ if settings.shouldAnalyzeSwift {
                     .forEach { allProbablyKeys.insert($0) }
             }
         }
+        increaseProgress()
     }
 }
 
@@ -256,6 +286,7 @@ if settings.shouldAnalyzeObjC {
                     .forEach { allProbablyKeys.insert($0) }
             }
         }
+        increaseProgress()
     }
 }
 
@@ -307,6 +338,7 @@ localizableFilePathDict.forEach { dirPath in
             }
         }
     }
+    increaseProgress()
 }
 
 localizableDictFilePathDict.forEach { dirPath in
@@ -318,6 +350,7 @@ localizableDictFilePathDict.forEach { dirPath in
             availableKeys[name] = availableKeys[name]?.union(Set(dict.keys))
         }
     }
+    increaseProgress()
 }
 
 let combinedUsedLocalizedKeys = swiftKeys.union(mKeys)
@@ -403,25 +436,3 @@ let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.su
 
 print(probablyKeysWithoutTranslation)
 */
-/*
- Koto
-
- - "registration_limit_risk_decline_reason"
- - "registration_limit_installment_agreement"
- - "registration_limit_risk_decline_debit"
-
- Mono:
- - "categories"
- - "Messenger"
- - "Viber"
- - "number_payments"
- - "contacts"
- - "Telegram"
- - "A"
- - "more_about_info_processing_title"
- - ""
- - "Email"
- - "number_payments_two"
- - "monthes_amount"
- - "registration_foreign_passport_subtitle"
- */
