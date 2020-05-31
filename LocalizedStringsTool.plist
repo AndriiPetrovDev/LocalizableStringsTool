@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>projectRootFolderPath</key>
+	<string>/Users/andrewmbp-office/ftband-bank-ios</string>
+	<key>unusedTranslations</key>
+	<true/>
+	<key>translationDuplication</key>
+	<false/>
+	<key>untranslatedKeys</key>
+	<true/>
+	<key>allUntranslatedStrings</key>
+	<false/>
+	<key>differentKeysInTranslations</key>
+	<false/>
+	<key>shouldAnalyzeSwift</key>
+	<true/>
+	<key>shouldAnalyzeObjC</key>
+	<true/>
+	<key>customSwiftPatternPrefixes</key>
+	<array>
+		<string>lang\(</string>
+		<string>lang</string>
+	</array>
+	<key>customSwiftPatternSuffixes</key>
+	<array>
+		<string>.localized</string>
+	</array>
+	<key>customObjCPatternPrefixes</key>
+	<array>
+		<string>lang</string>
+		<string>title</string>
+		<string>subtitle</string>
+		<string>advice</string>
+		<string>buttonTitle</string>
+		<string>rescanTitle</string>
+		<string>rescanSubtitle</string>
+	</array>
+	<key>objCPatternPrefixExceptions</key>
+	<array>
+		<string>setAnimation:</string>
+		<string>.animation\(</string>
+		<string>configureWithAnimation:</string>
+		<string>secondAnimation:</string>
+		<string>imageNamed:</string>
+		<string>userInfo\[</string>
+		<string>.appData\[</string>
+		<string>addAnimationViewFromFirstAnimation:</string>
+		<string>withTitle:</string>
+		<string>message:</string>
+		<string>deleteButtonTitle:</string>
+		<string>cancelButtonTitle:</string>
+		<string>positiveButtonTitle:</string>
+		<string>cancelButtonTitle:</string>
+	</array>
+	<key>swiftPatternPrefixExceptions</key>
+	<array>
+		<string>imageLiteral\(resourceName: </string>
+		<string>forResource: </string>
+		<string>SegmentedBarItemImageSet\(</string>
+		<string>appendingPathComponent\(</string>
+		<string>forKey: </string>
+		<string>userInfo\[</string>
+		<string>UIImage\(named: </string>
+		<string>Animatiion: </string>
+		<string>animation: </string>
+		<string>withAnimation: </string>
+		<string>Animation.named\(</string>
+		<string>.animation\(</string>
+	</array>
+	<key>keyNamePrefixExceptions</key>
+	<array>
+		<string>ic_</string>
+	</array>
+	<key>keyNamePattern</key>
+	<string>[_a-z0-9]*[_][a-z0-9]+</string>
+	<key>excludedKeys</key>
+	<array>
+		<string></string>
+		<string></string>
+	</array>
+	<key>folderExcludedNames</key>
+	<array>
+		<string>MiSnapSDK</string>
+		<string>Pods</string>
+	</array>
+</dict>
+</plist>

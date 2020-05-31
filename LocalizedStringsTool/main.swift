@@ -276,7 +276,8 @@ func printShort(result: AnalysisResult) {
     print("\n\nUnusedTranslations")
 
     result.unusedTranslations.keys.sorted().forEach { key in
-        print(key, result.unusedTranslations[key]!.count)
+        let count = result.unusedTranslations[key]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
+        print(key, count)
     }
     print("\n")
 }
@@ -574,6 +575,7 @@ func getAllObjCStringPattern(settings: Settings) -> String {
         pattern += #"(?!"# + prefix + #")"#
     }
     pattern += settings.keyNamePattern + #")")*(?:@"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
+    print(pattern)
 
     return pattern
 }
