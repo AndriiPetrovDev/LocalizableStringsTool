@@ -9,38 +9,6 @@
 import Cocoa
 import Foundation
 
-/*
- + получить текущую папку или прочитать путь
- + получить список всех .swift, .h, .m файлов
- + прочитать из каждого строки
- + составить сет из этих ключей “usedKeys”
- + получить список файлов .strings
- + составить массив из ключей “availableKeys” для каждого языка
- + “usedKeys” -   “availableKeys” = ключи без перевода (точно)
- + ключи без перевода (возможно)
- + “availableKeys” - “usedKeys” = неиспользуемые ключи
- + дублирование переводов
- + поддержка обж с
- + добавить все исключения из моно
- + оптимизация потребления памяти
- + указание пути
- + получить инфу со stringdict
- + сортировка как в файле с переводами
- + сепараторы секций переводов как в оригинале
- + добавить дефольные настройки
- + загрузка настроек из файла
- + разные ключи в разных файлах перевода
- + рефакторинг
- + кастомные правила для ключей
- + кастомные исключения
- + отображать прогресс
- + указать пусть файла настроек при старте
- - добавить все исключения из обычных проектов
- - csv export
- - differentKeysInTranslations add to AnalysisResult
-
- */
-
 let keyVariableCaptureName = "KEY"
 let translationVariableCaptureName = "TRANSLATION"
 let translationSectionVariableCaptureName = "SECTION"
@@ -171,7 +139,13 @@ processLocalizableDictFiles(settings: settings,
 
 // MARK: - GET RESULTS
 
-let result = getAnalysisResult(settings: settings, swiftKeys: swiftKeys, objCKeys: objCKeys, availableKeys: availableKeys, localizationsDict: localizationsDict)
+let result = getAnalysisResult(
+    settings: settings,
+    swiftKeys: swiftKeys,
+    objCKeys: objCKeys,
+    availableKeys: availableKeys,
+    localizationsDict: localizationsDict
+)
 printShort(result: result)
 
 // MARK: - SAVE FILES
@@ -326,7 +300,7 @@ func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
     result.unusedTranslations.keys.sorted().forEach { langKey in
         let count = result.unusedTranslations[langKey]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
         resultTestString += "\n\n==================================\n"
-        resultTestString +=  langKey + ": \(count)"
+        resultTestString += langKey + ": \(count)"
         resultTestString += "\n==================================\n\n"
         let sectionArray: [Section] = result.unusedTranslations[langKey]!
         sectionArray.forEach { section in
