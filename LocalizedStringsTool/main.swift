@@ -53,6 +53,8 @@ struct Settings: Decodable {
     let shouldAnalyzeSwift: Bool
     let shouldAnalyzeObjC: Bool
 
+    let customObjCPatternPrefixes: [String]
+
     let objCExceptions: [String]
     let swiftExceptions: [String]
     let folderExcludedNames: [String]
@@ -99,6 +101,7 @@ struct Section {
     var translations: [TranslationPair]
 }
 
+//                      language
 var localizationsDict = [String: [Section]]()
 
 let keyVariableCaptureName = "KEY"
@@ -107,16 +110,29 @@ let translationSectionVariableCaptureName = "SECTION"
 let anyStringVariableCaptureName = "ANYSTRING"
 
 let swiftKeyPattern = #""(?<"# + keyVariableCaptureName + #">\S*)".localized\(\)"#
-//let swiftKeyPattern = #""(?<KEY>\S*)".localized\(\)"#
 let swiftOldKeyPattern = #"lang\("(?<"# + keyVariableCaptureName + #">\S*)"\)"#
-//let swiftOldKeyPattern = #"lang\("(?<KEY>\S*)"\)"#
 //"# + + #"
-let objCKeyPattern = #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#
-//let objCKeyPattern = #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<KEY>\S*)"\)"#
-let localizedPairPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)")*;)+"#
-//(?<SECION>(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<KEY>\S*)" = "(?<TRANSLATION>(.*)\s?)")*;)+
-//let localizedPairPattern = #""(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)";"#
-//let localizedPairPattern = #""(?<KEY>\S*)" = "(?<TRANSLATION>(.*)\s?)";"#
+let objCKeyPattern = getObjCKeyPattern(settings: settings)
+//    #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#
+
+func getObjCKeyPattern(settings: Settings) -> String {
+    var pattern = #"("#
+
+    for prefix in settings.customObjCPatternPrefixes {
+        pattern += prefix + #"|"#
+    }
+    pattern.removeLast()
+
+    pattern += #")\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#
+
+    print(pattern)
+
+    print(#"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#)
+
+    return pattern
+}
+
+let localizedSectionPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)")*;)+"#
 
 var allObjCStringPattern = ""
 
@@ -125,7 +141,6 @@ settings.objCExceptions.forEach { exception in
 }
 
 allObjCStringPattern += #"(?:@"(?<"# + keyVariableCaptureName + #">(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:@"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
-//allObjCStringPattern += #"(?:@"(?<KEY>(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:@"(?<ANYSTRING>\S*)")*"#
 
 var allSwiftStringPattern = ""
 settings.swiftExceptions.forEach { exception in
@@ -133,145 +148,31 @@ settings.swiftExceptions.forEach { exception in
 }
 
 allSwiftStringPattern += #"(?:"(?<"# + keyVariableCaptureName + #">(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
-
-//allSwiftStringPattern += #"(?:"(?<KEY>(?!ic_)[_a-z0-9]*[_][a-z0-9]+)")*(?:"(?<ANYSTRING>\S*)")*"#
-
-func matchingStrings(regex: String, text: String, names: [String] = [keyVariableCaptureName]) -> [[String]] {
-    guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
-
-    let nsText = text as NSString
-    let results = regex.matches(in: text, options: [], range: NSMakeRange(0, text.count))
-
-    return results
-        .map { result -> [String] in
-        names
-            .map { (name: String) -> String? in
-                result.range(withName: name).location != NSNotFound
-                ? nsText.substring(with: result.range(withName: name))
-                : nil
-            }
-            .compactMap { $0 }
-    }
-}
+let langRegExp = #"\/(?<"# + keyVariableCaptureName + #">\S+)[.]lproj\/"#
 
 if settings.shouldAnalyzeSwift {
-    swiftFilePathSet.forEach { swiftFilePath in
-        autoreleasepool {
-            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + swiftFilePath), encoding: .utf8) {
-                matchingStrings(regex: swiftKeyPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { swiftKeys.insert($0) }
+    processSwiftFiles(swiftFilePathSet: swiftFilePathSet,
+                      swiftKeys: &swiftKeys,
+                      allSwiftStrings: &allSwiftStrings,
+                      allProbablyKeys: &allProbablyKeys)
 
-                matchingStrings(regex: swiftOldKeyPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { swiftKeys.insert($0) }
-
-                if settings.allUntranslatedStrings {
-                    matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
-                        .map { $0.first }
-                        .compactMap { $0 }
-                        .forEach { allSwiftStrings.insert($0) }
-                }
-                matchingStrings(regex: allSwiftStringPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { allProbablyKeys.insert($0) }
-            }
-        }
-        increaseProgress()
-    }
 }
 
 if settings.shouldAnalyzeObjC {
     let objCFilePathSet = mFilePathSet.union(hFilePathSet)
-    objCFilePathSet.forEach { filePath in
-        autoreleasepool {
-            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath), encoding: .utf8) {
-                matchingStrings(regex: objCKeyPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { objCKeys.insert($0) }
-                if settings.allUntranslatedStrings {
-                    matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
-                        .map { $0.first }
-                        .compactMap { $0 }
-                        .forEach { allSwiftStrings.insert($0) }
-                }
-                matchingStrings(regex: allObjCStringPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { allProbablyKeys.insert($0) }
-            }
-        }
-        increaseProgress()
-    }
+
+    processObjCFiles(objCFilePathSet: objCFilePathSet,
+                     objCKeys: &objCKeys,
+                     allSwiftStrings: &allSwiftStrings,
+                     allProbablyKeys: &allProbablyKeys)
 }
 
 var availableKeys = [String: Set<String>]()
 
-let langRegExp = #"\/(?<"# + keyVariableCaptureName + #">\S+)[.]lproj\/"#
+processLocalizableFiles(localizableFilePathDict: localizableFilePathDict, localizationsDict: &localizationsDict, availableKeys: &availableKeys)
+processLocalizableDictFiles(localizableDictFilePathDict: localizableDictFilePathDict, availableKeys: &availableKeys)
 
-func langName(for filePath: String) -> String {
-    matchingStrings(regex: langRegExp, text: filePath).first?.first ?? ""
-}
-
-localizableFilePathDict.forEach { dirPath in
-    autoreleasepool {
-        let path = (settings.projectRootFolderPath + "/" + dirPath)
-        do {
-            var oneLangAvailableKeys = Set<String>()
-            // Koto utf8, Mono utf16
-            let fileText8 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
-            let fileText16 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf16)
-            let arr = [fileText8, fileText16].compactMap { $0 }
-
-            if let fileText = arr.first {
-                let searchResults: [[String]] = matchingStrings(
-                    regex: localizedPairPattern,
-                    text: fileText,
-                    names: [translationSectionVariableCaptureName, keyVariableCaptureName, translationVariableCaptureName]
-                )
-                var sections = [Section]()
-
-                for result: [String] in searchResults {
-                    // found new section
-                    if result.count == 3 {
-                        sections.append(Section(name: result[0], translations: [TranslationPair(key: result[1], translation: result[2])]))
-                        oneLangAvailableKeys.insert(result[1])
-
-                        // add to previous section
-                    } else if result.count == 2 {
-                        oneLangAvailableKeys.insert(result[0])
-                        if sections.count > 0 {
-                            sections[sections.count - 1].translations.append(TranslationPair(key: result[0], translation: result[1]))
-                        } else {
-                            sections.append(Section(name: "", translations: [TranslationPair(key: result[0], translation: result[1])]))
-                        }
-                    }
-                }
-                let name = langName(for: dirPath)
-                localizationsDict[name] = sections
-                availableKeys[name] = oneLangAvailableKeys
-            }
-        }
-    }
-    increaseProgress()
-}
-
-localizableDictFilePathDict.forEach { dirPath in
-    let path = (settings.projectRootFolderPath + "/" + dirPath)
-    let fileURL = URL(fileURLWithPath: path)
-    autoreleasepool {
-        if let dict = NSDictionary(contentsOf: fileURL) as? Dictionary<String, AnyObject> {
-            let name = langName(for: dirPath)
-            availableKeys[name] = availableKeys[name]?.union(Set(dict.keys))
-        }
-    }
-    increaseProgress()
-}
-
+// GET RESULTS
 let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
 var untranslatedKeys = [String: Set<String>]()
 
@@ -300,6 +201,8 @@ localizationsDict.keys.forEach { key in
         }
     }
 }
+
+// SAVE FILES
 
 let endTime = Date()
 let consumedTime = endTime.timeIntervalSinceReferenceDate - startTime.timeIntervalSinceReferenceDate
@@ -360,7 +263,7 @@ let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.su
 print(probablyKeysWithoutTranslation)
 */
 
-// FUCTIONS
+// FUNCTIONS
 
 func readPlist() -> Settings {
 
@@ -385,6 +288,7 @@ func readPlist() -> Settings {
             differentKeysInTranslations: false,
             shouldAnalyzeSwift: true,
             shouldAnalyzeObjC: true,
+            customObjCPatternPrefixes: [#"NSLocalizedString("#],
             objCExceptions: [],
             swiftExceptions: [],
             folderExcludedNames: ["Pods"]
@@ -407,7 +311,7 @@ func increaseProgress() {
         progressString += "□"
     }
     let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
-    print(resultString)
+//    print(resultString)
 }
 
 func getAllFilesPaths(
@@ -442,4 +346,149 @@ func getAllFilesPaths(
         }
         commonFilesCount = swiftFilePathSet.count + hFilePathSet.count + mFilePathSet.count + localizableFilePathDict.count + localizableDictFilePathDict.count
     }
+}
+
+func matchingStrings(regex: String, text: String, names: [String] = [keyVariableCaptureName]) -> [[String]] {
+    guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
+
+    let nsText = text as NSString
+    let results = regex.matches(in: text, options: [], range: NSMakeRange(0, text.count))
+
+    return results
+        .map { result -> [String] in
+        names
+            .map { (name: String) -> String? in
+                result.range(withName: name).location != NSNotFound
+                ? nsText.substring(with: result.range(withName: name))
+                : nil
+            }
+            .compactMap { $0 }
+    }
+}
+
+func processSwiftFiles(swiftFilePathSet: Set<String>,
+                       swiftKeys: inout Set<String>,
+                       allSwiftStrings: inout Set<String>,
+                       allProbablyKeys: inout Set<String>) {
+    swiftFilePathSet.forEach { swiftFilePath in
+        autoreleasepool {
+            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + swiftFilePath), encoding: .utf8) {
+                matchingStrings(regex: swiftKeyPattern, text: fileText)
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { swiftKeys.insert($0) }
+
+                matchingStrings(regex: swiftOldKeyPattern, text: fileText)
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { swiftKeys.insert($0) }
+
+                if settings.allUntranslatedStrings {
+                    matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                        .map { $0.first }
+                        .compactMap { $0 }
+                        .forEach { allSwiftStrings.insert($0) }
+                }
+                matchingStrings(regex: allSwiftStringPattern, text: fileText)
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { allProbablyKeys.insert($0) }
+            }
+        }
+        increaseProgress()
+    }
+}
+
+func processObjCFiles(objCFilePathSet: Set<String>,
+                      objCKeys: inout Set<String>,
+                      allSwiftStrings: inout Set<String>,
+                      allProbablyKeys: inout Set<String>) {
+
+    objCFilePathSet.forEach { filePath in
+        autoreleasepool {
+            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath), encoding: .utf8) {
+                matchingStrings(regex: objCKeyPattern, text: fileText)
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { objCKeys.insert($0) }
+                if settings.allUntranslatedStrings {
+                    matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                        .map { $0.first }
+                        .compactMap { $0 }
+                        .forEach { allSwiftStrings.insert($0) }
+                }
+                matchingStrings(regex: allObjCStringPattern, text: fileText)
+                    .map { $0.first }
+                    .compactMap { $0 }
+                    .forEach { allProbablyKeys.insert($0) }
+            }
+        }
+        increaseProgress()
+    }
+}
+
+func processLocalizableFiles(localizableFilePathDict: [String],
+                             localizationsDict: inout [String: [Section]],
+                             availableKeys: inout [String: Set<String>]) {
+    localizableFilePathDict.forEach { dirPath in
+        autoreleasepool {
+            let path = (settings.projectRootFolderPath + "/" + dirPath)
+            do {
+                var oneLangAvailableKeys = Set<String>()
+                // Koto utf8, Mono utf16
+                let fileText8 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
+                let fileText16 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf16)
+                let arr = [fileText8, fileText16].compactMap { $0 }
+
+                if let fileText = arr.first {
+                    let searchResults: [[String]] = matchingStrings(
+                        regex: localizedSectionPattern,
+                        text: fileText,
+                        names: [translationSectionVariableCaptureName, keyVariableCaptureName, translationVariableCaptureName]
+                    )
+                    var sections = [Section]()
+
+                    for result: [String] in searchResults {
+                        // found new section
+                        if result.count == 3 {
+                            sections.append(Section(name: result[0], translations: [TranslationPair(key: result[1], translation: result[2])]))
+                            oneLangAvailableKeys.insert(result[1])
+
+                            // add to previous section
+                        } else if result.count == 2 {
+                            oneLangAvailableKeys.insert(result[0])
+                            if sections.count > 0 {
+                                sections[sections.count - 1].translations.append(TranslationPair(key: result[0], translation: result[1]))
+                            } else {
+                                sections.append(Section(name: "", translations: [TranslationPair(key: result[0], translation: result[1])]))
+                            }
+                        }
+                    }
+                    let name = langName(for: dirPath)
+                    localizationsDict[name] = sections
+                    availableKeys[name] = oneLangAvailableKeys
+                }
+            }
+        }
+        increaseProgress()
+    }
+}
+
+func processLocalizableDictFiles(localizableDictFilePathDict: [String], availableKeys: inout [String: Set<String>]) {
+
+    localizableDictFilePathDict.forEach { dirPath in
+        let path = (settings.projectRootFolderPath + "/" + dirPath)
+        let fileURL = URL(fileURLWithPath: path)
+        autoreleasepool {
+            if let dict = NSDictionary(contentsOf: fileURL) as? Dictionary<String, AnyObject> {
+                let name = langName(for: dirPath)
+                availableKeys[name] = availableKeys[name]?.union(Set(dict.keys))
+            }
+        }
+        increaseProgress()
+    }
+}
+
+func langName(for filePath: String) -> String {
+    matchingStrings(regex: langRegExp, text: filePath).first?.first ?? ""
 }
