@@ -39,13 +39,7 @@ import Foundation
 
  */
 
-// MARK: - OPTIONS
-typealias TranslationPair = (key: String, translation: String)
-
-struct Section {
-    let name: String
-    var translations: [TranslationPair]
-}
+// MARK: - SETTINGS
 
 struct Settings: Decodable {
     let projectRootFolderPath: String
@@ -64,75 +58,19 @@ struct Settings: Decodable {
     let folderExcludedNames: [String]
 
 }
-var settings: Settings!
 
-var projectPath = "/Users/andrewmbp-office/ftband-bank-ios"
+// PROGRESS CALCULATION
 
+let startTime = Date()
 var commonFilesCount = 0
 var currentFilesCountHandled = 0
 
-private func increaseProgress() {
-    currentFilesCountHandled += 1
-
-    let maxLength = 50
-    var currentLength = (maxLength * currentFilesCountHandled) / commonFilesCount
-
-
-    currentLength = max(0, currentLength)
-
-    var progressString = ""
-
-    for _ in 0 ... currentLength {
-        progressString += "■"
-    }
-
-    for _ in 0 ... maxLength - currentLength {
-        progressString += "□"
-    }
-
-    let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
-
-    print(resultString)
-}
-
-private func readPlist() {
-
-    //    let path = FileManager.default.currentDirectoryPath + "/LocalizedStringsTool.plist"
-    let path = "/Users/andrewmbp-office/Library/Developer/Xcode/DerivedData/LocalizedStringsTool-blwtdzgdconutmbtojnabaztzxrf/Build/Products/Debug/LocalizedStringsTool.plist"
-
-    do {
-        let fileURL = URL(fileURLWithPath: path)
-        let data = try Data(contentsOf: fileURL)
-        settings = try PropertyListDecoder().decode(Settings.self, from: data)
-        dump(settings)
-    } catch {
-        NSLog(error.localizedDescription)
-        NSLog("Default settings will be used")
-
-        settings = Settings(
-            projectRootFolderPath: FileManager.default.currentDirectoryPath,
-            unusedTranslations: true,
-            translationDuplication: true,
-            untranslatedKeys: true,
-            allUntranslatedStrings: false,
-            differentKeysInTranslations: false,
-            shouldAnalyzeSwift: true,
-            shouldAnalyzeObjC: true,
-            objCExceptions: [],
-            swiftExceptions: [],
-            folderExcludedNames: ["Pods"]
-        )
-    }
-}
-
-readPlist()
+var settings: Settings = readPlist()
 
 //let executableName = CommandLine.arguments[0] as NSString
 //print(executableName)
 
 //let argCount = CommandLine.argc
-
-let settingsFilePath = "/Users/Shared/Previously Relocated Items/Security/develop/LocalizedStringsTool/LocalizedStringsTool/LocalizedStringsTool.plist"
 
 var swiftFilePathSet = Set<String>()
 var hFilePathSet = Set<String>()
@@ -140,46 +78,26 @@ var mFilePathSet = Set<String>()
 var localizableFilePathDict = [String]()
 var localizableDictFilePathDict = [String]()
 
-let settingsFile = URL(fileURLWithPath: settingsFilePath)
-
-private func getAllFilesPaths() {
-    let manager = FileManager.default
-    let enumerator = manager.enumerator(atPath: projectPath)
-    //let content = try? manager.contentsOfDirectory(atPath: FileManager.default.currentDirectoryPath)
-
-    while let element = enumerator?.nextObject() as? String {
-        var shouldHandlePath = true
-        for pathElement in settings.folderExcludedNames {
-            if element.contains(pathElement) {
-                shouldHandlePath = false
-            }
-        }
-
-        if shouldHandlePath {
-            if element.hasSuffix(".swift") && settings.shouldAnalyzeSwift {
-                swiftFilePathSet.insert(element)
-            } else if element.hasSuffix(".h") && settings.shouldAnalyzeObjC {
-                hFilePathSet.insert(element)
-            } else if element.hasSuffix(".m") && settings.shouldAnalyzeObjC {
-                mFilePathSet.insert(element)
-            } else if element.hasSuffix("Localizable.strings") {
-                localizableFilePathDict.append(element)
-            } else if element.hasSuffix("Localizable.stringsdict") {
-                localizableDictFilePathDict.append(element)
-            }
-        }
-        commonFilesCount = swiftFilePathSet.count + hFilePathSet.count + mFilePathSet.count + localizableFilePathDict.count + localizableDictFilePathDict.count
-    }
-}
-
-getAllFilesPaths()
+getAllFilesPaths(
+    swiftFilePathSet: &swiftFilePathSet,
+    hFilePathSet: &hFilePathSet,
+    mFilePathSet: &mFilePathSet,
+    localizableFilePathDict: &localizableFilePathDict,
+    localizableDictFilePathDict: &localizableDictFilePathDict
+)
 
 var swiftKeys = Set<String>()
-var mKeys = Set<String>()
+var objCKeys = Set<String>()
 var allSwiftStrings = Set<String>()
 var allSwiftProbablyKeys = Set<String>()
 var allObjCProbablyKeys = Set<String>()
 var allProbablyKeys = Set<String>()
+
+typealias TranslationPair = (key: String, translation: String)
+struct Section {
+    let name: String
+    var translations: [TranslationPair]
+}
 
 var localizationsDict = [String: [Section]]()
 
@@ -192,7 +110,7 @@ let swiftKeyPattern = #""(?<"# + keyVariableCaptureName + #">\S*)".localized\(\)
 //let swiftKeyPattern = #""(?<KEY>\S*)".localized\(\)"#
 let swiftOldKeyPattern = #"lang\("(?<"# + keyVariableCaptureName + #">\S*)"\)"#
 //let swiftOldKeyPattern = #"lang\("(?<KEY>\S*)"\)"#
-"# + + #"
+//"# + + #"
 let objCKeyPattern = #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#
 //let objCKeyPattern = #"(lang|title|subtitle|advice|buttonTitle|rescanTitle|rescanSubtitle)\(@"(?<KEY>\S*)"\)"#
 let localizedPairPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)")*;)+"#
@@ -239,7 +157,7 @@ func matchingStrings(regex: String, text: String, names: [String] = [keyVariable
 if settings.shouldAnalyzeSwift {
     swiftFilePathSet.forEach { swiftFilePath in
         autoreleasepool {
-            if let fileText = try? String(contentsOf: URL(fileURLWithPath: projectPath + "/" + swiftFilePath), encoding: .utf8) {
+            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + swiftFilePath), encoding: .utf8) {
                 matchingStrings(regex: swiftKeyPattern, text: fileText)
                     .map { $0.first }
                     .compactMap { $0 }
@@ -267,13 +185,14 @@ if settings.shouldAnalyzeSwift {
 }
 
 if settings.shouldAnalyzeObjC {
-    mFilePathSet.forEach { mFilePath in
+    let objCFilePathSet = mFilePathSet.union(hFilePathSet)
+    objCFilePathSet.forEach { filePath in
         autoreleasepool {
-            if let fileText = try? String(contentsOf: URL(fileURLWithPath: projectPath + "/" + mFilePath), encoding: .utf8) {
+            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath), encoding: .utf8) {
                 matchingStrings(regex: objCKeyPattern, text: fileText)
                     .map { $0.first }
                     .compactMap { $0 }
-                    .forEach { mKeys.insert($0) }
+                    .forEach { objCKeys.insert($0) }
                 if settings.allUntranslatedStrings {
                     matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
                         .map { $0.first }
@@ -294,13 +213,13 @@ var availableKeys = [String: Set<String>]()
 
 let langRegExp = #"\/(?<"# + keyVariableCaptureName + #">\S+)[.]lproj\/"#
 
-private func langName(for filePath: String) -> String {
-    return matchingStrings(regex: langRegExp, text: filePath).first?.first ?? ""
+func langName(for filePath: String) -> String {
+    matchingStrings(regex: langRegExp, text: filePath).first?.first ?? ""
 }
 
 localizableFilePathDict.forEach { dirPath in
     autoreleasepool {
-        let path = (projectPath + "/" + dirPath)
+        let path = (settings.projectRootFolderPath + "/" + dirPath)
         do {
             var oneLangAvailableKeys = Set<String>()
             // Koto utf8, Mono utf16
@@ -342,7 +261,7 @@ localizableFilePathDict.forEach { dirPath in
 }
 
 localizableDictFilePathDict.forEach { dirPath in
-    let path = (projectPath + "/" + dirPath)
+    let path = (settings.projectRootFolderPath + "/" + dirPath)
     let fileURL = URL(fileURLWithPath: path)
     autoreleasepool {
         if let dict = NSDictionary(contentsOf: fileURL) as? Dictionary<String, AnyObject> {
@@ -353,7 +272,7 @@ localizableDictFilePathDict.forEach { dirPath in
     increaseProgress()
 }
 
-let combinedUsedLocalizedKeys = swiftKeys.union(mKeys)
+let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
 var untranslatedKeys = [String: Set<String>]()
 
 availableKeys.keys.forEach { (key: String) in
@@ -382,7 +301,11 @@ localizationsDict.keys.forEach { key in
     }
 }
 
-dump(unusedLocalizationsDict)
+let endTime = Date()
+let consumedTime = endTime.timeIntervalSinceReferenceDate - startTime.timeIntervalSinceReferenceDate
+print("consumed time: ", Int(consumedTime), "sec")
+
+//dump(unusedLocalizationsDict)
 
 /*
 
@@ -436,3 +359,87 @@ let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.su
 
 print(probablyKeysWithoutTranslation)
 */
+
+// FUCTIONS
+
+func readPlist() -> Settings {
+
+    //    let path = FileManager.default.currentDirectoryPath + "/LocalizedStringsTool.plist"
+    let path = "/Users/andrewmbp-office/Library/Developer/Xcode/DerivedData/LocalizedStringsTool-blwtdzgdconutmbtojnabaztzxrf/Build/Products/Debug/LocalizedStringsTool.plist"
+
+    do {
+        let fileURL = URL(fileURLWithPath: path)
+        let data = try Data(contentsOf: fileURL)
+        return try PropertyListDecoder().decode(Settings.self, from: data)
+
+    } catch {
+        NSLog(error.localizedDescription)
+        NSLog("Default settings will be used")
+
+        return Settings(
+            projectRootFolderPath: FileManager.default.currentDirectoryPath,
+            unusedTranslations: true,
+            translationDuplication: true,
+            untranslatedKeys: true,
+            allUntranslatedStrings: false,
+            differentKeysInTranslations: false,
+            shouldAnalyzeSwift: true,
+            shouldAnalyzeObjC: true,
+            objCExceptions: [],
+            swiftExceptions: [],
+            folderExcludedNames: ["Pods"]
+        )
+    }
+}
+
+func increaseProgress() {
+    currentFilesCountHandled += 1
+
+    let maxLength = 50
+    var currentLength = (maxLength * currentFilesCountHandled) / commonFilesCount
+
+    currentLength = max(0, currentLength)
+    var progressString = ""
+    for _ in 0 ..< currentLength {
+        progressString += "■"
+    }
+    for _ in 0 ..< maxLength - currentLength {
+        progressString += "□"
+    }
+    let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
+    print(resultString)
+}
+
+func getAllFilesPaths(
+    swiftFilePathSet: inout Set<String>,
+    hFilePathSet: inout  Set<String>,
+    mFilePathSet: inout Set<String>,
+    localizableFilePathDict: inout [String],
+    localizableDictFilePathDict: inout [String]) {
+    let manager = FileManager.default
+    let enumerator = manager.enumerator(atPath: settings.projectRootFolderPath)
+
+    while let element = enumerator?.nextObject() as? String {
+        var shouldHandlePath = true
+        for pathElement in settings.folderExcludedNames {
+            if element.contains(pathElement) {
+                shouldHandlePath = false
+            }
+        }
+
+        if shouldHandlePath {
+            if element.hasSuffix(".swift") && settings.shouldAnalyzeSwift {
+                swiftFilePathSet.insert(element)
+            } else if element.hasSuffix(".h") && settings.shouldAnalyzeObjC {
+                hFilePathSet.insert(element)
+            } else if element.hasSuffix(".m") && settings.shouldAnalyzeObjC {
+                mFilePathSet.insert(element)
+            } else if element.hasSuffix("Localizable.strings") {
+                localizableFilePathDict.append(element)
+            } else if element.hasSuffix("Localizable.stringsdict") {
+                localizableDictFilePathDict.append(element)
+            }
+        }
+        commonFilesCount = swiftFilePathSet.count + hFilePathSet.count + mFilePathSet.count + localizableFilePathDict.count + localizableDictFilePathDict.count
+    }
+}
