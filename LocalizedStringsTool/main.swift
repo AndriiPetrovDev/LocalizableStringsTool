@@ -37,6 +37,7 @@ import Foundation
  + указать пусть файла настроек при старте
  - добавить все исключения из обычных проектов
  - csv export
+ - differentKeysInTranslations add to AnalysisResult
 
  */
 
@@ -65,6 +66,7 @@ struct Settings: Decodable {
 
     let keyNamePrefixExceptions: [String]
     let keyNamePattern: String
+    let excludedKeys: [String]
     let swiftPatternPrefixExceptions: [String]
     let objCPatternPrefixExceptions: [String]
     let folderExcludedNames: [String]
@@ -75,6 +77,21 @@ typealias TranslationPair = (key: String, translation: String)
 struct Section {
     let name: String
     var translations: [TranslationPair]
+}
+
+struct TranslationKeysDiff {
+    let firstLangName: String
+    let secondLangName: String
+    let firstAddedKeys: [String]
+    let firstDeletedKeys: [String]
+}
+
+struct AnalysisResult {
+    let unusedTranslations: [String: [Section]]
+    let untranslatedKeys: [String: Set<String>]
+    let translationDuplication: [String: [String: [String]]]?
+    let allUntranslatedStrings: [String]?
+    let differentKeysInTranslations: [TranslationKeysDiff]?
 }
 
 // MARK: - CALCULATE PROGRESS
@@ -92,7 +109,8 @@ var localizableFilePathArray = [String]()
 var localizableDictFilePathArray = [String]()
 
 let settingsFilePath = getSettingsFilePath()
-let settings: Settings = readPlist(settingsFilePath: settingsFilePath)
+var settingsFileFolder: String = ""
+let settings: Settings = readPlist(settingsFilePath: settingsFilePath, settingsFileFolder: &settingsFileFolder)
 print()
 
 getAllFilesPaths(settings: settings,
@@ -153,109 +171,35 @@ processLocalizableDictFiles(settings: settings,
 
 // MARK: - GET RESULTS
 
-let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
-var untranslatedKeys = [String: Set<String>]()
-
-availableKeys.keys.forEach { (key: String) in
-    var usedKeys = combinedUsedLocalizedKeys
-    usedKeys.subtract(availableKeys[key]!)
-    untranslatedKeys[key] = usedKeys
-}
-
-var unusedLocalizationsDict = [String: [Section]]()
-
-localizationsDict.keys.forEach { key in
-    localizationsDict[key]?.forEach { (section: Section) in
-        var unusedSection = Section(name: section.name, translations: [TranslationPair]())
-        section.translations.forEach { pair in
-            if !combinedUsedLocalizedKeys.contains(pair.key) {
-                unusedSection.translations.append(pair)
-            }
-        }
-        if unusedSection.translations.count > 0 {
-            if unusedLocalizationsDict[key] != nil {
-                unusedLocalizationsDict[key]?.append(unusedSection)
-            } else {
-                unusedLocalizationsDict[key] = [unusedSection]
-            }
-        }
-    }
-}
-
-untranslatedKeys.keys.forEach { key in
-    print(key, untranslatedKeys[key]!.count)
-}
+let result = getAnalysisResult(settings: settings, swiftKeys: swiftKeys, objCKeys: objCKeys, availableKeys: availableKeys, localizationsDict: localizationsDict)
+printShort(result: result)
 
 // MARK: - SAVE FILES
+
+saveToFile(result: result, settingsFileFolder: settingsFileFolder)
 
 let endTime = Date()
 let consumedTime = endTime.timeIntervalSinceReferenceDate - startTime.timeIntervalSinceReferenceDate
 print("consumed time: ", Int(consumedTime), "sec")
 
-//dump(unusedLocalizationsDict)
-
-/*
-
-// [lang: Set<key>]
-let langKeysDict = localizationsDict.mapValues { Set($0.keys) }
-let langTranslationsDict = localizationsDict.mapValues { Set($0.values) }
-
-let langKeysSubtractUsedKeysDict = langKeysDict.mapValues { $0.subtracting(combinedUsedLocalizedKeys) }
-// subtract all used strings because sometimes they used as just strings without localized construction
-let extraTranslations = langKeysSubtractUsedKeysDict.mapValues { $0.subtracting(allSwiftStrings) }
-
-if settings.translationDuplication {
-    let duplicatedTranslations = localizationsDict.mapValues { (oneLangDict: [String: String]) -> [String: [String]] in
-        //  translation: keys
-        var translationKeysDict = [String: [String]]()
-
-        oneLangDict.forEach { (arg: (key: String, value: String)) in
-            let (key, value) = arg
-            if translationKeysDict[value] != nil {
-                translationKeysDict[value]!.append(key)
-            } else {
-                translationKeysDict[value] = [key]
-            }
-        }
-
-        return translationKeysDict.filter { _, value in value.count > 1 }
-    }
-
-    print("duplicatedTranslations")
-    dump(duplicatedTranslations)
-}
-
-print("\n\n")
-print("extraTranslations")
-//print(extraTranslations)
-dump(extraTranslations)
-
-// print("allSwiftStrings")
-// dump(allSwiftStrings)
-
-// print("allProbablyKeys")
-// dump(allProbablyKeys)
-
-print("keys without translation")
-let keysWithoutTranslation = langKeysDict.mapValues { combinedUsedLocalizedKeys.subtracting($0) }
-
-print(keysWithoutTranslation)
-
-print("probably keys without translation")
-let probablyKeysWithoutTranslation = langKeysDict.mapValues { allProbablyKeys.subtracting($0).subtracting(combinedUsedLocalizedKeys.subtracting($0)) }
-
-print(probablyKeysWithoutTranslation)
-*/
-
 // MARK: - FUNCTIONS
 
 func getSettingsFilePath() -> String? {
     print(#"Enter "LocalizedStringsTool.plist" absolute path:"#)
-    return readLine()
+    let path = readLine()
+    if let path = path, !path.isEmpty {
+        return path
+    } else {
+        return nil
+    }
 }
 
-func readPlist(settingsFilePath: String?) -> Settings {
-    let path = settingsFilePath ?? FileManager.default.currentDirectoryPath + "/LocalizedStringsTool.plist"
+func readPlist(settingsFilePath: String?, settingsFileFolder: inout String) -> Settings {
+    let currentExecutablePath = CommandLine.arguments[0] as NSString
+    let currentSettingsFilePath = currentExecutablePath.deletingLastPathComponent + "/LocalizedStringsTool.plist"
+    let path = settingsFilePath ?? currentSettingsFilePath
+
+    settingsFileFolder = ((path as NSString).deletingLastPathComponent as String)
 
     do {
         let fileURL = URL(fileURLWithPath: path)
@@ -263,11 +207,11 @@ func readPlist(settingsFilePath: String?) -> Settings {
 
         return try PropertyListDecoder().decode(Settings.self, from: data)
     } catch {
-        NSLog(error.localizedDescription)
-        NSLog("Default settings will be used")
+        print(error.localizedDescription)
+        print("Default settings will be used")
 
         return Settings(
-            projectRootFolderPath: FileManager.default.currentDirectoryPath,
+            projectRootFolderPath: settingsFileFolder,
             unusedTranslations: true,
             translationDuplication: true,
             untranslatedKeys: true,
@@ -280,6 +224,7 @@ func readPlist(settingsFilePath: String?) -> Settings {
             customObjCPatternPrefixes: [#"NSLocalizedString("#],
             keyNamePrefixExceptions: [],
             keyNamePattern: #"[.]+"#,
+            excludedKeys: [],
             swiftPatternPrefixExceptions: [],
             objCPatternPrefixExceptions: [],
             folderExcludedNames: ["Pods"]
@@ -303,6 +248,100 @@ func increaseProgress() {
     }
     let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
     print(resultString)
+}
+
+func getAnalysisResult(settings: Settings,
+                       swiftKeys: Set<String>,
+                       objCKeys: Set<String>,
+                       availableKeys: [String: Set<String>],
+                       localizationsDict: [String: [Section]]) -> AnalysisResult {
+    let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
+    var untranslatedKeys = [String: Set<String>]()
+
+    availableKeys.keys.forEach { (key: String) in
+        var usedKeys = combinedUsedLocalizedKeys
+        usedKeys.subtract(availableKeys[key]!)
+        usedKeys.subtract(Set(settings.excludedKeys))
+        untranslatedKeys[key] = usedKeys
+    }
+
+    var unusedLocalizationsDict = [String: [Section]]()
+
+    localizationsDict.keys.forEach { key in
+        localizationsDict[key]?.forEach { (section: Section) in
+            var unusedSection = Section(name: section.name, translations: [TranslationPair]())
+            section.translations.forEach { pair in
+                if !combinedUsedLocalizedKeys.contains(pair.key) {
+                    unusedSection.translations.append(pair)
+                }
+            }
+            if unusedSection.translations.count > 0 {
+                if unusedLocalizationsDict[key] != nil {
+                    unusedLocalizationsDict[key]?.append(unusedSection)
+                } else {
+                    unusedLocalizationsDict[key] = [unusedSection]
+                }
+            }
+        }
+    }
+
+    return AnalysisResult(
+        unusedTranslations: unusedLocalizationsDict,
+        untranslatedKeys: untranslatedKeys,
+        translationDuplication: nil,
+        allUntranslatedStrings: nil,
+        differentKeysInTranslations: nil
+    )
+}
+
+func printShort(result: AnalysisResult) {
+    print("\nUntranslatedKeys:")
+    result.untranslatedKeys.keys.sorted().forEach { key in
+        print(key, result.untranslatedKeys[key]!.count)
+    }
+    print("\n\nUnusedTranslations")
+
+    result.unusedTranslations.keys.sorted().forEach { key in
+        print(key, result.unusedTranslations[key]!.count)
+    }
+    print("\n")
+}
+
+func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
+    let outputFilePathUrl = URL(fileURLWithPath: settingsFileFolder + "/LocalizedStringsToolResults.txt")
+    var resultTestString = "        LocalizedStringsToolResults\n"
+
+    resultTestString += "\n\n   UntranslatedKeys:\n\n"
+    result.untranslatedKeys.keys.sorted().forEach { langKey in
+        let count = result.untranslatedKeys[langKey]!.count
+        resultTestString += "\n" + langKey + ": \(count) \n"
+        let keyArray: [String] = Array(result.untranslatedKeys[langKey]!)
+        keyArray.sorted().forEach { key in
+            resultTestString += "   " + key + "\n"
+        }
+    }
+
+    resultTestString += "\n\n   UnusedTranslations:"
+
+    result.unusedTranslations.keys.sorted().forEach { langKey in
+        let count = result.unusedTranslations[langKey]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
+        resultTestString += "\n\n==================================\n"
+        resultTestString +=  langKey + ": \(count)"
+        resultTestString += "\n==================================\n\n"
+        let sectionArray: [Section] = result.unusedTranslations[langKey]!
+        sectionArray.forEach { section in
+            resultTestString += "\n   " + section.name + "\n"
+            section.translations.forEach { key, translation in
+                resultTestString += "       " + key + "\n"
+            }
+        }
+    }
+
+    do {
+        try resultTestString.write(to: outputFilePathUrl, atomically: true, encoding: String.Encoding.utf8)
+    } catch {
+        print(error)
+    }
 }
 
 // MARK: - FILES PROCESSING
