@@ -5,11 +5,11 @@
 
 
 Base: 19 
+   
    auth_rules_doc_privacy
    auth_rules_opt_in_marketing_description
    auth_rules_opt_in_marketing_title
    button_delete
-   credit_details_uah"))
    deposit_reduced_rate_first_subtitle
    empty
    multi_card_kid_title
@@ -26,6 +26,7 @@ Base: 19
    Сервер
 
 Insurance.playground/Resources/ru-RU: 44 
+   
    achievements_count
    auth_rules_doc_privacy
    auth_rules_opt_in_marketing_description
@@ -33,7 +34,6 @@ Insurance.playground/Resources/ru-RU: 44
    button_delete
    categories
    contacts
-   credit_details_uah"))
    days
    deposit_reduced_rate_first_subtitle
    empty
@@ -72,6 +72,7 @@ Insurance.playground/Resources/ru-RU: 44
    Сервер
 
 en: 34 
+   
    achievements_count
    auth_rules_doc_privacy
    auth_rules_opt_in_marketing_description
@@ -79,7 +80,6 @@ en: 34
    button_delete
    categories
    contacts
-   credit_details_uah"))
    days
    empty
    fop_main_settings_close_acc
@@ -108,11 +108,11 @@ en: 34
    Сервер
 
 ru-RU: 19 
+   
    auth_rules_doc_privacy
    auth_rules_opt_in_marketing_description
    auth_rules_opt_in_marketing_title
    button_delete
-   credit_details_uah"))
    deposit_reduced_rate_first_subtitle
    empty
    multi_card_kid_title
@@ -129,11 +129,11 @@ ru-RU: 19
    Сервер
 
 uk: 18 
+   
    auth_rules_doc_privacy
    auth_rules_opt_in_marketing_description
    auth_rules_opt_in_marketing_title
    button_delete
-   credit_details_uah"))
    empty
    multi_card_kid_title
    recharge_from_kid
@@ -152,7 +152,7 @@ uk: 18
    UnusedTranslations:
 
 ==================================
-Base: 1242
+Base: 1227
 ==================================
 
 
@@ -480,9 +480,6 @@ Base: 1242
        communal_company_add_search_create_template
        communal_company_delete_from_list
        communal_company_delete_template
-       communal_company_delete_several
-       communal_company_delete_continue
-       communal_company_delete_confirm
        communal_company_confirm_delete
        communal_company_payment_info_sum_template
        communal_company_added_continue
@@ -636,7 +633,6 @@ Base: 1242
        deposit_detail_document
        deposit_detail_calculation
        deposit_detail_next_payment
-       deposit_status_prolonged
        deposit_title_sport_decreased
        deposit_status_wait_date
        deposit_choose_payment_cell_subtitle
@@ -1104,7 +1100,6 @@ Base: 1242
    /* Common Buttons */
        button_ok
        button_close
-       activation_card_iron_title
        loan_info_pay_monthly
        loan_payment_list_title
        loan_payment_methods_title
@@ -1253,26 +1248,18 @@ Base: 1242
        child_settings_theme_item
        child_cards
        child_reset_pin_send_title
-       intro_jar_and_rewards_cashback_title
-       intro_jar_and_rewards_cashback_desc
-       intro_jar_and_rewards_miles_title
-       intro_jar_and_rewards_miles_desc
        jar_empty_title
        jar_empty_subtitle
        jar_settings_cards_title
        jar_settings_no_accumulation
        jar_settings_common
-       jar_settings_set_amount
        jar_settings_change_image
        jar_settings_add_image
-       jar_settings_add_description
        jar_replenish_title
        jar_invite_friends_hint
        jar_open_new
        jar_member_delete
        jar_invite_owner_name
-       jar_description_change
-       jar_amount_change
        jar_statement_details_transaction_button
        jar_subtitle_card_personal
        jar_subtitle_card_usd
@@ -1407,8 +1394,6 @@ Base: 1242
    /* Registration: Virtual card */
        registrations_selfie_tip1
        registration_virtual_take_photo
-       registration_selfie_face_straight
-       registration_selfie_phone_straight
        main_blocked_insurance_title
        main_blocked_insurance_description
        main_blocked_insurance_button
@@ -1540,7 +1525,7 @@ Base: 1242
 
 
 ==================================
-Insurance.playground/Resources/ru-RU: 1092
+Insurance.playground/Resources/ru-RU: 1077
 ==================================
 
 
@@ -1868,9 +1853,6 @@ Insurance.playground/Resources/ru-RU: 1092
        communal_company_add_search_create_template
        communal_company_delete_from_list
        communal_company_delete_template
-       communal_company_delete_several
-       communal_company_delete_continue
-       communal_company_delete_confirm
        communal_company_confirm_delete
        communal_company_payment_info_sum_template
        communal_company_added_continue
@@ -2024,7 +2006,6 @@ Insurance.playground/Resources/ru-RU: 1092
        deposit_detail_document
        deposit_detail_calculation
        deposit_detail_next_payment
-       deposit_status_prolonged
        deposit_title_sport_decreased
        deposit_status_wait_date
        deposit_choose_payment_cell_subtitle
@@ -2489,7 +2470,6 @@ Insurance.playground/Resources/ru-RU: 1092
        cash_credit_promo_next
        cash_credit_promo_term
        cash_credit_promo_interest_rate
-       activation_card_iron_title
        loan_info_pay_monthly
        loan_payment_list_title
        loan_payment_methods_title
@@ -2638,25 +2618,17 @@ Insurance.playground/Resources/ru-RU: 1092
        child_settings_theme_item
        child_cards
        child_reset_pin_send_title
-       intro_jar_and_rewards_cashback_title
-       intro_jar_and_rewards_cashback_desc
-       intro_jar_and_rewards_miles_title
-       intro_jar_and_rewards_miles_desc
        jar_empty_title
        jar_empty_subtitle
        jar_settings_cards_title
        jar_settings_no_accumulation
        jar_settings_common
-       jar_settings_set_amount
        jar_settings_change_image
        jar_settings_add_image
-       jar_settings_add_description
        jar_replenish_title
        jar_invite_friends_hint
        jar_open_new
        jar_member_delete
-       jar_description_change
-       jar_amount_change
        p2p_referral_invite
        jar_statement_details_transaction_button
        jar_subtitle_card_personal
@@ -2769,12 +2741,10 @@ Insurance.playground/Resources/ru-RU: 1092
    /* Registration: Virtual card */
        registrations_selfie_tip1
        registration_virtual_take_photo
-       registration_selfie_face_straight
-       registration_selfie_phone_straight
 
 
 ==================================
-en: 1116
+en: 1101
 ==================================
 
 
@@ -3100,9 +3070,6 @@ en: 1116
        communal_company_add_search_create_template
        communal_company_delete_from_list
        communal_company_delete_template
-       communal_company_delete_several
-       communal_company_delete_continue
-       communal_company_delete_confirm
        communal_company_confirm_delete
        communal_company_payment_info_sum_template
        communal_company_added_continue
@@ -3254,7 +3221,6 @@ en: 1116
        deposit_detail_document
        deposit_detail_calculation
        deposit_detail_next_payment
-       deposit_status_prolonged
        deposit_title_sport_decreased
        deposit_status_wait_date
        deposit_choose_payment_cell_subtitle
@@ -3718,7 +3684,6 @@ en: 1116
    /* Common Buttons */
        button_ok
        button_close
-       activation_card_iron_title
        loan_info_pay_monthly
        loan_payment_list_title
        loan_payment_methods_title
@@ -3867,26 +3832,18 @@ en: 1116
        child_settings_theme_item
        child_cards
        child_reset_pin_send_title
-       intro_jar_and_rewards_cashback_title
-       intro_jar_and_rewards_cashback_desc
-       intro_jar_and_rewards_miles_title
-       intro_jar_and_rewards_miles_desc
        jar_empty_title
        jar_empty_subtitle
        jar_settings_cards_title
        jar_settings_no_accumulation
        jar_settings_common
-       jar_settings_set_amount
        jar_settings_change_image
        jar_settings_add_image
-       jar_settings_add_description
        jar_replenish_title
        jar_invite_friends_hint
        jar_open_new
        jar_member_delete
        jar_invite_owner_name
-       jar_description_change
-       jar_amount_change
        jar_statement_details_transaction_button
        jar_subtitle_card_personal
        jar_subtitle_card_usd
@@ -4020,8 +3977,6 @@ en: 1116
    /* Registration: Virtual card */
        registrations_selfie_tip1
        registration_virtual_take_photo
-       registration_selfie_face_straight
-       registration_selfie_phone_straight
        main_blocked_insurance_title
        main_blocked_insurance_description
        main_blocked_insurance_button
@@ -4036,7 +3991,7 @@ en: 1116
 
 
 ==================================
-ru-RU: 1242
+ru-RU: 1227
 ==================================
 
 
@@ -4364,9 +4319,6 @@ ru-RU: 1242
        communal_company_add_search_create_template
        communal_company_delete_from_list
        communal_company_delete_template
-       communal_company_delete_several
-       communal_company_delete_continue
-       communal_company_delete_confirm
        communal_company_confirm_delete
        communal_company_payment_info_sum_template
        communal_company_added_continue
@@ -4520,7 +4472,6 @@ ru-RU: 1242
        deposit_detail_document
        deposit_detail_calculation
        deposit_detail_next_payment
-       deposit_status_prolonged
        deposit_title_sport_decreased
        deposit_status_wait_date
        deposit_choose_payment_cell_subtitle
@@ -4988,7 +4939,6 @@ ru-RU: 1242
    /* Common Buttons */
        button_ok
        button_close
-       activation_card_iron_title
        loan_info_pay_monthly
        loan_payment_list_title
        loan_payment_methods_title
@@ -5137,26 +5087,18 @@ ru-RU: 1242
        child_settings_theme_item
        child_cards
        child_reset_pin_send_title
-       intro_jar_and_rewards_cashback_title
-       intro_jar_and_rewards_cashback_desc
-       intro_jar_and_rewards_miles_title
-       intro_jar_and_rewards_miles_desc
        jar_empty_title
        jar_empty_subtitle
        jar_settings_cards_title
        jar_settings_no_accumulation
        jar_settings_common
-       jar_settings_set_amount
        jar_settings_change_image
        jar_settings_add_image
-       jar_settings_add_description
        jar_replenish_title
        jar_invite_friends_hint
        jar_open_new
        jar_member_delete
        jar_invite_owner_name
-       jar_description_change
-       jar_amount_change
        jar_statement_details_transaction_button
        jar_subtitle_card_personal
        jar_subtitle_card_usd
@@ -5291,8 +5233,6 @@ ru-RU: 1242
    /* Registration: Virtual card */
        registrations_selfie_tip1
        registration_virtual_take_photo
-       registration_selfie_face_straight
-       registration_selfie_phone_straight
        main_blocked_insurance_title
        main_blocked_insurance_description
        main_blocked_insurance_button
@@ -5424,7 +5364,7 @@ ru-RU: 1242
 
 
 ==================================
-uk: 1242
+uk: 1227
 ==================================
 
 
@@ -5752,9 +5692,6 @@ uk: 1242
        communal_company_add_search_create_template
        communal_company_delete_from_list
        communal_company_delete_template
-       communal_company_delete_several
-       communal_company_delete_continue
-       communal_company_delete_confirm
        communal_company_confirm_delete
        communal_company_payment_info_sum_template
        communal_company_added_continue
@@ -5908,7 +5845,6 @@ uk: 1242
        deposit_detail_document
        deposit_detail_calculation
        deposit_detail_next_payment
-       deposit_status_prolonged
        deposit_title_sport_decreased
        deposit_status_wait_date
        deposit_choose_payment_cell_subtitle
@@ -6376,7 +6312,6 @@ uk: 1242
    /* Common Buttons */
        button_ok
        button_close
-       activation_card_iron_title
        loan_info_pay_monthly
        loan_payment_list_title
        loan_payment_methods_title
@@ -6525,26 +6460,18 @@ uk: 1242
        child_settings_theme_item
        child_cards
        child_reset_pin_send_title
-       intro_jar_and_rewards_cashback_title
-       intro_jar_and_rewards_cashback_desc
-       intro_jar_and_rewards_miles_title
-       intro_jar_and_rewards_miles_desc
        jar_empty_title
        jar_empty_subtitle
        jar_settings_cards_title
        jar_settings_no_accumulation
        jar_settings_common
-       jar_settings_set_amount
        jar_settings_change_image
        jar_settings_add_image
-       jar_settings_add_description
        jar_replenish_title
        jar_invite_friends_hint
        jar_open_new
        jar_member_delete
        jar_invite_owner_name
-       jar_description_change
-       jar_amount_change
        jar_statement_details_transaction_button
        jar_subtitle_card_personal
        jar_subtitle_card_usd
@@ -6679,8 +6606,6 @@ uk: 1242
    /* Registration: Virtual card */
        registrations_selfie_tip1
        registration_virtual_take_photo
-       registration_selfie_face_straight
-       registration_selfie_phone_straight
        main_blocked_insurance_title
        main_blocked_insurance_description
        main_blocked_insurance_button

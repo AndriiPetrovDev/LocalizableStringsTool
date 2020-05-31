@@ -29,13 +29,19 @@
 	</array>
 	<key>customObjCPatternPrefixes</key>
 	<array>
-		<string>lang</string>
-		<string>title</string>
-		<string>subtitle</string>
-		<string>advice</string>
-		<string>buttonTitle</string>
-		<string>rescanTitle</string>
-		<string>rescanSubtitle</string>
+		<string>lang\(</string>
+		<string>title\(</string>
+		<string>subtitle\(</string>
+		<string>advice\(</string>
+		<string>buttonTitle\(</string>
+		<string>rescanTitle\(</string>
+		<string>rescanSubtitle\(</string>
+		<string>withTitle:</string>
+		<string>message:</string>
+		<string>deleteButtonTitle:</string>
+		<string>cancelButtonTitle:</string>
+		<string>positiveButtonTitle:</string>
+		<string>cancelButtonTitle:</string>
 	</array>
 	<key>objCPatternPrefixExceptions</key>
 	<array>
@@ -47,12 +53,6 @@
 		<string>userInfo\[</string>
 		<string>.appData\[</string>
 		<string>addAnimationViewFromFirstAnimation:</string>
-		<string>withTitle:</string>
-		<string>message:</string>
-		<string>deleteButtonTitle:</string>
-		<string>cancelButtonTitle:</string>
-		<string>positiveButtonTitle:</string>
-		<string>cancelButtonTitle:</string>
 	</array>
 	<key>swiftPatternPrefixExceptions</key>
 	<array>
@@ -75,10 +75,25 @@
 	</array>
 	<key>keyNamePattern</key>
 	<string>[_a-z0-9]*[_][a-z0-9]+</string>
+	<key>excludedTranslationKeys</key>
+	<array>
+		<string>intro_jar_and_rewards_miles_title</string>
+		<string>intro_jar_and_rewards_cashback_title</string>
+		<string>intro_jar_and_rewards_miles_desc</string>
+		<string>intro_jar_and_rewards_cashback_desc</string>
+		<string>registration_selfie_face_straight</string>
+		<string>registration_selfie_phone_straight</string>
+		<string>activation_card_iron_title</string>
+		<string>activation_photo_title</string>
+		<string>activation_title</string>
+		<string>jar_amount_change</string>
+		<string>jar_settings_set_amount</string>
+		<string>jar_description_change</string>
+		<string>jar_settings_add_description</string>
+	</array>
 	<key>excludedKeys</key>
 	<array>
-		<string></string>
-		<string></string>
+		<string>credit_details_uah&quot;))</string>
 	</array>
 	<key>folderExcludedNames</key>
 	<array>

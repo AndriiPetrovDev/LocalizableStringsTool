@@ -35,6 +35,7 @@ struct Settings: Decodable {
     let keyNamePrefixExceptions: [String]
     let keyNamePattern: String
     let excludedKeys: [String]
+    let excludedTranslationKeys: [String]
     let swiftPatternPrefixExceptions: [String]
     let objCPatternPrefixExceptions: [String]
     let folderExcludedNames: [String]
@@ -199,6 +200,7 @@ func readPlist(settingsFilePath: String?, settingsFileFolder: inout String) -> S
             keyNamePrefixExceptions: [],
             keyNamePattern: #"[.]+"#,
             excludedKeys: [],
+            excludedTranslationKeys: [],
             swiftPatternPrefixExceptions: [],
             objCPatternPrefixExceptions: [],
             folderExcludedNames: ["Pods"]
@@ -245,7 +247,7 @@ func getAnalysisResult(settings: Settings,
         localizationsDict[key]?.forEach { (section: Section) in
             var unusedSection = Section(name: section.name, translations: [TranslationPair]())
             section.translations.forEach { pair in
-                if !combinedUsedLocalizedKeys.contains(pair.key) {
+                if !combinedUsedLocalizedKeys.contains(pair.key) && !settings.excludedTranslationKeys.contains(pair.key) {
                     unusedSection.translations.append(pair)
                 }
             }
@@ -520,7 +522,7 @@ func getObjCKeyPattern(settings: Settings) -> String {
         pattern += prefix + #"|"#
     }
     pattern.removeLast()
-    pattern += #")\(@"(?<"# + keyVariableCaptureName + #">\S*)"\)"#
+    pattern += #")@"(?<"# + keyVariableCaptureName + #">\S*)"\)*"#
 
     return pattern
 }
@@ -575,7 +577,6 @@ func getAllObjCStringPattern(settings: Settings) -> String {
         pattern += #"(?!"# + prefix + #")"#
     }
     pattern += settings.keyNamePattern + #")")*(?:@"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
-    print(pattern)
 
     return pattern
 }
