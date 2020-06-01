@@ -3,4 +3,134 @@
    uuid = "DAF0BFD4-37F3-4B88-9F21-FB2A7B4C8288"
    type = "1"
    version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A4F7497F-88EE-4F79-88AF-07692B8E1E72"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "430"
+            endingLineNumber = "430"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "873762D8-B81A-4E09-9F75-9F7EF46819F3"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "431"
+            endingLineNumber = "431"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "6D5638D4-2854-446E-8614-70E907ADA569"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "406"
+            endingLineNumber = "406"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A9E52FCE-B32A-402D-AE19-C0D07793BCD3"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "401"
+            endingLineNumber = "401"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "405"
+            endingLineNumber = "405"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+            <Locations>
+               <Location
+                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - e4070274633cbaa"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 () -&gt; () in closure #1 () -&gt; () in closure #1 (Swift.String) -&gt; () in LocalizedStringsTool.processSwiftFiles(settings: LocalizedStringsTool.Settings, swiftKeyPatterns: Swift.Array&lt;Swift.String&gt;, allSwiftStringPattern: Swift.String, swiftFilePathSet: Swift.Set&lt;Swift.String&gt;, swiftKeys: inout Swift.Set&lt;Swift.String&gt;, allStrings: inout Swift.Set&lt;Swift.String&gt;, allProbablyKeys: inout Swift.Set&lt;Swift.String&gt;, dispatchGroup: __C.OS_dispatch_group) -&gt; ()"
+                  moduleName = "LocalizedStringsTool"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrewmbp-office/LocalizedStringsTool/LocalizedStringsTool/main.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "414"
+                  endingLineNumber = "414"
+                  offsetFromSymbolStart = "928">
+               </Location>
+               <Location
+                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - 44449c64f1b2492b"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "closure #1 (Swift.String) -&gt; () in closure #1 () -&gt; () in closure #1 () -&gt; () in closure #1 (Swift.String) -&gt; () in LocalizedStringsTool.processSwiftFiles(settings: LocalizedStringsTool.Settings, swiftKeyPatterns: Swift.Array&lt;Swift.String&gt;, allSwiftStringPattern: Swift.String, swiftFilePathSet: Swift.Set&lt;Swift.String&gt;, swiftKeys: inout Swift.Set&lt;Swift.String&gt;, allStrings: inout Swift.Set&lt;Swift.String&gt;, allProbablyKeys: inout Swift.Set&lt;Swift.String&gt;, dispatchGroup: __C.OS_dispatch_group) -&gt; ()"
+                  moduleName = "LocalizedStringsTool"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/andrewmbp-office/LocalizedStringsTool/LocalizedStringsTool/main.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "415"
+                  endingLineNumber = "415"
+                  offsetFromSymbolStart = "109">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "A900071B-4B8E-45EC-BAF0-81ED8358F7B4"
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/main.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "402"
+            endingLineNumber = "402"
+            landmarkName = "processSwiftFiles(settings:swiftKeyPatterns:allSwiftStringPattern:swiftFilePathSet:swiftKeys:allStrings:allProbablyKeys:dispatchGroup:)"
+            landmarkType = "9">
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
 </Bucket>

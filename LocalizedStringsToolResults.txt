@@ -71,7 +71,7 @@ Insurance.playground/Resources/ru-RU: 44
    statement_your_account_title
    Сервер
 
-en: 34 
+en: 35 
    
    achievements_count
    auth_rules_doc_privacy
@@ -86,6 +86,7 @@ en: 34
    fop_settings_acc_close_bt_support
    fop_settings_acc_close_desc
    friends
+   insurance_buy_policy_insurer_info_direct
    jar_replenish_count
    jar_shared_count
    monthes_amount
@@ -152,7 +153,7 @@ uk: 18
    UnusedTranslations:
 
 ==================================
-Base: 1227
+Base: 1226
 ==================================
 
 
@@ -1339,7 +1340,6 @@ Base: 1227
        insurance_buy_policy_insurer_info_price
        insurance_buy_policy_insurer_info_rating
        insurance_buy_policy_insurer_info_extra
-       insurance_buy_policy_insurer_info_direct
        insurance_buy_policy_insurer_info_direct_description
        insurance_buy_policy_insurer_info_button
        insurance_buy_policy_insurer_empty_list
@@ -1525,7 +1525,7 @@ Base: 1227
 
 
 ==================================
-Insurance.playground/Resources/ru-RU: 1077
+Insurance.playground/Resources/ru-RU: 1076
 ==================================
 
 
@@ -2686,7 +2686,6 @@ Insurance.playground/Resources/ru-RU: 1077
        insurance_buy_policy_insurer_info_price
        insurance_buy_policy_insurer_info_rating
        insurance_buy_policy_insurer_info_extra
-       insurance_buy_policy_insurer_info_direct
        insurance_buy_policy_insurer_info_direct_description
        insurance_buy_policy_insurer_info_button
        insurance_buy_policy_insurer_empty_list
@@ -3991,7 +3990,7 @@ en: 1101
 
 
 ==================================
-ru-RU: 1227
+ru-RU: 1226
 ==================================
 
 
@@ -5178,7 +5177,6 @@ ru-RU: 1227
        insurance_buy_policy_insurer_info_price
        insurance_buy_policy_insurer_info_rating
        insurance_buy_policy_insurer_info_extra
-       insurance_buy_policy_insurer_info_direct
        insurance_buy_policy_insurer_info_direct_description
        insurance_buy_policy_insurer_info_button
        insurance_buy_policy_insurer_empty_list
@@ -5364,7 +5362,7 @@ ru-RU: 1227
 
 
 ==================================
-uk: 1227
+uk: 1226
 ==================================
 
 
@@ -6551,7 +6549,6 @@ uk: 1227
        insurance_buy_policy_insurer_info_price
        insurance_buy_policy_insurer_info_rating
        insurance_buy_policy_insurer_info_extra
-       insurance_buy_policy_insurer_info_direct
        insurance_buy_policy_insurer_info_direct_description
        insurance_buy_policy_insurer_info_button
        insurance_buy_policy_insurer_empty_list

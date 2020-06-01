@@ -99,44 +99,64 @@ var allProbablyKeys = Set<String>()
 
 //                      language
 var localizationsDict = [String: [Section]]()
-
-if settings.shouldAnalyzeSwift {
-    let swiftKeyPatterns = getSwiftKeyPatterns(settings: settings)
-    let allSwiftStringPattern = getAllSwiftStringPattern(settings: settings)
-    processSwiftFiles(settings: settings,
-                      swiftKeyPatterns: swiftKeyPatterns,
-                      allSwiftStringPattern: allSwiftStringPattern,
-                      swiftFilePathSet: swiftFilePathSet,
-                      swiftKeys: &swiftKeys,
-                      allStrings: &allStrings,
-                      allProbablyKeys: &allProbablyKeys)
-
-}
-
-if settings.shouldAnalyzeObjC {
-    let objCFilePathSet = mFilePathSet.union(hFilePathSet)
-    let objCKeyPattern = getObjCKeyPattern(settings: settings)
-    let allObjCStringPattern = getAllObjCStringPattern(settings: settings)
-
-    processObjCFiles(settings: settings,
-                     objCKeyPattern: objCKeyPattern,
-                     allObjCStringPattern: allObjCStringPattern,
-                     objCFilePathSet: objCFilePathSet,
-                     objCKeys: &objCKeys,
-                     allStrings: &allStrings,
-                     allProbablyKeys: &allProbablyKeys)
-}
-
 var availableKeys = [String: Set<String>]()
 
-processLocalizableFiles(settings: settings,
-                        localizableFilePathDict: localizableFilePathArray,
-                        localizationsDict: &localizationsDict,
-                        availableKeys: &availableKeys)
+let concurrentQueue = DispatchQueue(label: "concurrentQueue", attributes: .concurrent)
+let syncQueue = DispatchQueue(label: "Atomic serial queue")
+let taskGroup = DispatchGroup()
 
-processLocalizableDictFiles(settings: settings,
-                            localizableDictFilePathDict: localizableDictFilePathArray,
-                            availableKeys: &availableKeys)
+if settings.shouldAnalyzeSwift {
+    taskGroup.enter()
+    concurrentQueue.async {
+        let swiftKeyPatterns = getSwiftKeyPatterns(settings: settings)
+        let allSwiftStringPattern = getAllSwiftStringPattern(settings: settings)
+        processSwiftFiles(settings: settings,
+                          swiftKeyPatterns: swiftKeyPatterns,
+                          allSwiftStringPattern: allSwiftStringPattern,
+                          swiftFilePathSet: swiftFilePathSet,
+                          swiftKeys: &swiftKeys,
+                          allStrings: &allStrings,
+                          allProbablyKeys: &allProbablyKeys,
+                          dispatchGroup: taskGroup)
+
+    }
+}
+if settings.shouldAnalyzeObjC {
+    taskGroup.enter()
+    concurrentQueue.async {
+        let objCFilePathSet = mFilePathSet.union(hFilePathSet)
+        let objCKeyPattern = getObjCKeyPattern(settings: settings)
+        let allObjCStringPattern = getAllObjCStringPattern(settings: settings)
+
+        processObjCFiles(settings: settings,
+                         objCKeyPattern: objCKeyPattern,
+                         allObjCStringPattern: allObjCStringPattern,
+                         objCFilePathSet: objCFilePathSet,
+                         objCKeys: &objCKeys,
+                         allStrings: &allStrings,
+                         allProbablyKeys: &allProbablyKeys,
+                         dispatchGroup: taskGroup)
+    }
+}
+
+taskGroup.enter()
+concurrentQueue.async {
+    processLocalizableFiles(settings: settings,
+                            localizableFilePathDict: localizableFilePathArray,
+                            localizationsDict: &localizationsDict,
+                            availableKeys: &availableKeys,
+                            dispatchGroup: taskGroup)
+}
+
+taskGroup.enter()
+concurrentQueue.async {
+    processLocalizableDictFiles(settings: settings,
+                                localizableDictFilePathDict: localizableDictFilePathArray,
+                                availableKeys: &availableKeys,
+                                dispatchGroup: taskGroup)
+}
+
+taskGroup.wait()
 
 // MARK: - GET RESULTS
 
@@ -363,33 +383,53 @@ func processSwiftFiles(settings: Settings,
                        swiftFilePathSet: Set<String>,
                        swiftKeys: inout Set<String>,
                        allStrings: inout Set<String>,
-                       allProbablyKeys: inout Set<String>) {
+                       allProbablyKeys: inout Set<String>,
+                       dispatchGroup: DispatchGroup) {
+    let concurrentQueue = DispatchQueue(label: "processSwiftFiles", attributes: .concurrent)
+    let taskGroup = DispatchGroup()
+
+    var _swiftKeys = Set<String>()
+    var _allStrings = Set<String>()
+    var _allProbablyKeys = Set<String>()
+
     swiftFilePathSet.forEach { swiftFilePath in
-        autoreleasepool {
-            if let fileText = try? String(
-                contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + swiftFilePath),
-                encoding: .utf8
-            ) {
-                swiftKeyPatterns.forEach { pattern in
-                    matchingStrings(regex: pattern, text: fileText)
+        taskGroup.enter()
+        concurrentQueue.async {
+            autoreleasepool {
+                if let fileText = try? String(
+                    contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + swiftFilePath),
+                    encoding: .utf8
+                ) {
+                    swiftKeyPatterns.forEach { pattern in
+                        matchingStrings(regex: pattern, text: fileText)
+                            .map { $0.first }
+                            .compactMap { $0 }
+                            .forEach { key in syncQueue.sync { _swiftKeys.insert(key) } }
+                    }
+                    if settings.allUntranslatedStrings {
+                        matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                            .map { $0.first }
+                            .compactMap { $0 }
+                            .forEach { key in syncQueue.sync { _allStrings.insert(key) } }
+                    }
+                    matchingStrings(regex: allSwiftStringPattern, text: fileText)
                         .map { $0.first }
                         .compactMap { $0 }
-                        .forEach { swiftKeys.insert($0) }
+                        .forEach { key in syncQueue.sync { _allProbablyKeys.insert(key) } }
                 }
-                if settings.allUntranslatedStrings {
-                    matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
-                        .map { $0.first }
-                        .compactMap { $0 }
-                        .forEach { allStrings.insert($0) }
-                }
-                matchingStrings(regex: allSwiftStringPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { allProbablyKeys.insert($0) }
             }
+            increaseProgress()
+            taskGroup.leave()
         }
-        increaseProgress()
+
     }
+    taskGroup.wait()
+
+    swiftKeys.formUnion(_swiftKeys)
+    allStrings.formUnion(_allStrings)
+    allProbablyKeys.formUnion(_allProbablyKeys)
+
+    dispatchGroup.leave()
 }
 
 func processObjCFiles(settings: Settings,
@@ -398,96 +438,154 @@ func processObjCFiles(settings: Settings,
                       objCFilePathSet: Set<String>,
                       objCKeys: inout Set<String>,
                       allStrings: inout Set<String>,
-                      allProbablyKeys: inout Set<String>) {
+                      allProbablyKeys: inout Set<String>,
+                      dispatchGroup: DispatchGroup) {
+    let concurrentQueue = DispatchQueue(label: "processObjCFiles", attributes: .concurrent)
+    let taskGroup = DispatchGroup()
+
+    var _objCKeys = Set<String>()
+    var _allStrings = Set<String>()
+    var _allProbablyKeys = Set<String>()
 
     objCFilePathSet.forEach { filePath in
-        autoreleasepool {
-            if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath), encoding: .utf8) {
-                matchingStrings(regex: objCKeyPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { objCKeys.insert($0) }
-                if settings.allUntranslatedStrings {
-                    matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+        taskGroup.enter()
+        concurrentQueue.async {
+            autoreleasepool {
+                if let fileText = try? String(contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath), encoding: .utf8) {
+                    matchingStrings(regex: objCKeyPattern, text: fileText)
                         .map { $0.first }
                         .compactMap { $0 }
-                        .forEach { allStrings.insert($0) }
+                        .forEach { key in syncQueue.sync { _objCKeys.insert(key) } }
+                    if settings.allUntranslatedStrings {
+                        matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                            .map { $0.first }
+                            .compactMap { $0 }
+                            .forEach { key in syncQueue.sync { _allStrings.insert(key) } }
+                    }
+                    matchingStrings(regex: allObjCStringPattern, text: fileText)
+                        .map { $0.first }
+                        .compactMap { $0 }
+                        .forEach { key in syncQueue.sync { _allProbablyKeys.insert(key) } }
                 }
-                matchingStrings(regex: allObjCStringPattern, text: fileText)
-                    .map { $0.first }
-                    .compactMap { $0 }
-                    .forEach { allProbablyKeys.insert($0) }
             }
+            increaseProgress()
+            taskGroup.leave()
         }
-        increaseProgress()
     }
+
+    taskGroup.wait()
+
+    objCKeys.formUnion(_objCKeys)
+    allStrings.formUnion(_allStrings)
+    allProbablyKeys.formUnion(_allProbablyKeys)
+
+    dispatchGroup.leave()
 }
 
 func processLocalizableFiles(settings: Settings,
                              localizableFilePathDict: [String],
                              localizationsDict: inout [String: [Section]],
-                             availableKeys: inout [String: Set<String>]) {
+                             availableKeys: inout [String: Set<String>],
+                             dispatchGroup: DispatchGroup) {
+
     let localizedSectionPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)")*;)+"#
 
+    let concurrentQueue = DispatchQueue(label: "processSwiftFiles", attributes: .concurrent)
+    let taskGroup = DispatchGroup()
+
+    var _localizationsDict = [String: [Section]]()
+    var _availableKeys = [String: Set<String>]()
+
     localizableFilePathDict.forEach { dirPath in
-        autoreleasepool {
-            let path = (settings.projectRootFolderPath + "/" + dirPath)
-            do {
-                var oneLangAvailableKeys = Set<String>()
-                // Koto utf8, Mono utf16
-                let fileText8 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
-                let fileText16 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf16)
-                let arr = [fileText8, fileText16].compactMap { $0 }
+        taskGroup.enter()
+        concurrentQueue.async {
+            autoreleasepool {
+                let path = (settings.projectRootFolderPath + "/" + dirPath)
+                do {
+                    var oneLangAvailableKeys = Set<String>()
+                    // Koto utf8, Mono utf16
+                    let fileText8 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf8)
+                    let fileText16 = try? String(contentsOf: URL(fileURLWithPath: path), encoding: .utf16)
+                    let arr = [fileText8, fileText16].compactMap { $0 }
 
-                if let fileText = arr.first {
-                    let searchResults: [[String]] = matchingStrings(
-                        regex: localizedSectionPattern,
-                        text: fileText,
-                        names: [translationSectionVariableCaptureName, keyVariableCaptureName, translationVariableCaptureName]
-                    )
-                    var sections = [Section]()
+                    if let fileText = arr.first {
+                        let searchResults: [[String]] = matchingStrings(
+                            regex: localizedSectionPattern,
+                            text: fileText,
+                            names: [translationSectionVariableCaptureName, keyVariableCaptureName, translationVariableCaptureName]
+                        )
+                        var sections = [Section]()
 
-                    for result: [String] in searchResults {
-                        // found new section
-                        if result.count == 3 {
-                            sections.append(Section(name: result[0], translations: [TranslationPair(key: result[1], translation: result[2])]))
-                            oneLangAvailableKeys.insert(result[1])
+                        for result: [String] in searchResults {
+                            // found new section
+                            if result.count == 3 {
+                                sections.append(Section(name: result[0], translations: [TranslationPair(key: result[1], translation: result[2])]))
+                                oneLangAvailableKeys.insert(result[1])
 
-                            // add to previous section
-                        } else if result.count == 2 {
-                            oneLangAvailableKeys.insert(result[0])
-                            if sections.count > 0 {
-                                sections[sections.count - 1].translations.append(TranslationPair(key: result[0], translation: result[1]))
-                            } else {
-                                sections.append(Section(name: "", translations: [TranslationPair(key: result[0], translation: result[1])]))
+                                // add to previous section
+                            } else if result.count == 2 {
+                                oneLangAvailableKeys.insert(result[0])
+                                if sections.count > 0 {
+                                    sections[sections.count - 1].translations.append(TranslationPair(key: result[0], translation: result[1]))
+                                } else {
+                                    sections.append(Section(name: "", translations: [TranslationPair(key: result[0], translation: result[1])]))
+                                }
                             }
                         }
+                        let name = langName(for: dirPath)
+                        syncQueue.sync { _localizationsDict[name] = sections }
+                        syncQueue.sync { _availableKeys[name] = oneLangAvailableKeys }
                     }
-                    let name = langName(for: dirPath)
-                    localizationsDict[name] = sections
-                    availableKeys[name] = oneLangAvailableKeys
                 }
             }
+            increaseProgress()
+            taskGroup.leave()
         }
-        increaseProgress()
     }
+    taskGroup.wait()
+
+    _localizationsDict.keys.forEach { key in
+        var baseSections: [Section] = localizationsDict[key] ?? [Section]()
+        let additionalSections: [Section] = _localizationsDict[key] ?? [Section]()
+        baseSections.append(contentsOf: additionalSections)
+        localizationsDict[key] = baseSections
+    }
+
+    _availableKeys.keys.forEach { key in
+        var baseKeys: Set<String> = availableKeys[key] ?? Set<String>()
+        let additionalKeys: Set<String> = _availableKeys[key] ?? Set<String>()
+        baseKeys.formUnion(additionalKeys)
+        availableKeys[key] = baseKeys
+    }
+
+    dispatchGroup.leave()
 }
 
 func processLocalizableDictFiles(settings: Settings,
                                  localizableDictFilePathDict: [String],
-                                 availableKeys: inout [String: Set<String>]) {
+                                 availableKeys: inout [String: Set<String>],
+                                 dispatchGroup: DispatchGroup) {
+
+    let taskGroup = DispatchGroup()
 
     localizableDictFilePathDict.forEach { dirPath in
+        taskGroup.enter()
         let path = (settings.projectRootFolderPath + "/" + dirPath)
         let fileURL = URL(fileURLWithPath: path)
         autoreleasepool {
             if let dict = NSDictionary(contentsOf: fileURL) as? Dictionary<String, AnyObject> {
                 let name = langName(for: dirPath)
-                availableKeys[name] = availableKeys[name]?.union(Set(dict.keys))
+                syncQueue.sync {
+                    availableKeys[name] = Set(dict.keys).union(availableKeys[name] ?? Set<String>())
+                }
             }
         }
         increaseProgress()
+        taskGroup.leave()
     }
+    taskGroup.wait()
+
+    dispatchGroup.leave()
 }
 
 // MARK: - REGEXP
