@@ -7,20 +7,20 @@
 	<key>unusedTranslations</key>
 	<true/>
 	<key>translationDuplication</key>
-	<false/>
+	<true/>
 	<key>untranslatedKeys</key>
 	<true/>
 	<key>allUntranslatedStrings</key>
 	<false/>
 	<key>differentKeysInTranslations</key>
-	<false/>
+	<true/>
 	<key>shouldAnalyzeSwift</key>
 	<true/>
 	<key>shouldAnalyzeObjC</key>
 	<true/>
 	<key>customSwiftPatternPrefixes</key>
 	<array>
-		<string>lang\(</string>
+		<string>lang(</string>
 		<string>lang</string>
 	</array>
 	<key>customSwiftPatternSuffixes</key>
@@ -29,13 +29,13 @@
 	</array>
 	<key>customObjCPatternPrefixes</key>
 	<array>
-		<string>lang\(</string>
-		<string>title\(</string>
-		<string>subtitle\(</string>
-		<string>advice\(</string>
-		<string>buttonTitle\(</string>
-		<string>rescanTitle\(</string>
-		<string>rescanSubtitle\(</string>
+		<string>lang(</string>
+		<string>title(</string>
+		<string>subtitle(</string>
+		<string>advice(</string>
+		<string>buttonTitle(</string>
+		<string>rescanTitle(</string>
+		<string>rescanSubtitle(</string>
 		<string>withTitle:</string>
 		<string>message:</string>
 		<string>deleteButtonTitle:</string>
@@ -46,28 +46,28 @@
 	<key>objCPatternPrefixExceptions</key>
 	<array>
 		<string>setAnimation:</string>
-		<string>.animation\(</string>
+		<string>.animation(</string>
 		<string>configureWithAnimation:</string>
 		<string>secondAnimation:</string>
 		<string>imageNamed:</string>
-		<string>userInfo\[</string>
-		<string>.appData\[</string>
+		<string>userInfo[</string>
+		<string>.appData[</string>
 		<string>addAnimationViewFromFirstAnimation:</string>
 	</array>
 	<key>swiftPatternPrefixExceptions</key>
 	<array>
-		<string>imageLiteral\(resourceName: </string>
+		<string>imageLiteral(resourceName: </string>
 		<string>forResource: </string>
-		<string>SegmentedBarItemImageSet\(</string>
-		<string>appendingPathComponent\(</string>
+		<string>SegmentedBarItemImageSet(</string>
+		<string>appendingPathComponent(</string>
 		<string>forKey: </string>
-		<string>userInfo\[</string>
-		<string>UIImage\(named: </string>
+		<string>userInfo[</string>
+		<string>UIImage(named: </string>
 		<string>Animatiion: </string>
 		<string>animation: </string>
 		<string>withAnimation: </string>
-		<string>Animation.named\(</string>
-		<string>.animation\(</string>
+		<string>Animation.named(</string>
+		<string>.animation(</string>
 	</array>
 	<key>keyNamePrefixExceptions</key>
 	<array>

@@ -59,9 +59,9 @@ struct AnalysisResult {
     let unusedTranslations: [String: [Section]]
     let untranslatedKeys: [String: Set<String>]
     //                           lang  translation  keys
-    let translationDuplication: [String: [String: [String]]]?
+    let translationDuplication: [String: [String: [String]]]
     let allUntranslatedStrings: [String]?
-    let differentKeysInTranslations: [TranslationKeysDiff]?
+    let differentKeysInTranslations: [TranslationKeysDiff]
 }
 
 // MARK: - CALCULATE PROGRESS
@@ -270,7 +270,6 @@ func getAnalysisResult(settings: Settings,
     let taskGroup = DispatchGroup()
 
     localizationsDict.keys.forEach { langKey in
-
         localizationsDict[langKey]?.forEach { (section: Section) in
             var unusedSection = Section(name: section.name, translations: [TranslationPair]())
             section.translations.forEach { pair in
@@ -285,8 +284,14 @@ func getAnalysisResult(settings: Settings,
                     unusedLocalizationsDict[langKey] = [unusedSection]
                 }
             }
+        }
+    }
 
-            if settings.translationDuplication {
+    if settings.translationDuplication {
+        localizationsDict.keys.forEach { langKey in
+
+            localizationsDict[langKey]?.forEach { (section: Section) in
+
                 section.translations.map { $0.translation }
                     .forEach { targetTranslation in
                         taskGroup.enter()
@@ -324,8 +329,8 @@ func getAnalysisResult(settings: Settings,
     }
     taskGroup.wait()
     var realTranslationDuplication = [String: [String: [String]]]()
-    if settings.translationDuplication {
 
+    if settings.translationDuplication {
         translationDuplication.keys.forEach { langKey in
             translationDuplication[langKey]!.keys.forEach { translation in
                 if translationDuplication[langKey]![translation]!.count > 1 {
@@ -339,12 +344,46 @@ func getAnalysisResult(settings: Settings,
         }
     }
 
+    var translationKeysDiffs = [TranslationKeysDiff]()
+
+    if settings.differentKeysInTranslations {
+        localizationsDict.keys.forEach { firstLangKey in
+            localizationsDict.keys.forEach { secondLangKey in
+                let isPairAlreadyPresent = translationKeysDiffs.filter { $0.firstLangName == secondLangKey && $0.secondLangName == firstLangKey }.count > 0
+                if firstLangKey != secondLangKey, !isPairAlreadyPresent {
+                    let firstKeys = localizationsDict[firstLangKey]!
+                        .reduce(into: Set<String>()) { (result: inout Set<String>, section: Section) in
+                            result.formUnion(Set(section.translations.map { $0.key }))
+                        }
+
+                    let secondKeys = localizationsDict[secondLangKey]!
+                        .reduce(into: Set<String>()) { (result: inout Set<String>, section: Section) in
+                            result.formUnion(Set(section.translations.map { $0.key }))
+                        }
+
+                    let firstAddedKeys = firstKeys.subtracting(secondKeys)
+                    let firstDeletedKeys = secondKeys.subtracting(firstKeys)
+
+                    let diff = TranslationKeysDiff(
+                        firstLangName: firstLangKey,
+                        secondLangName: secondLangKey,
+                        firstAddedKeys: Array(firstAddedKeys).sorted(),
+                        firstDeletedKeys: Array(firstDeletedKeys).sorted()
+                    )
+                    if diff.firstAddedKeys.count > 0 || diff.firstDeletedKeys.count > 0 {
+                        translationKeysDiffs.append(diff)
+                    }
+                }
+            }
+        }
+    }
+
     return AnalysisResult(
         unusedTranslations: unusedLocalizationsDict,
         untranslatedKeys: untranslatedKeys,
         translationDuplication: realTranslationDuplication,
         allUntranslatedStrings: nil,
-        differentKeysInTranslations: nil
+        differentKeysInTranslations: translationKeysDiffs
     )
 }
 
@@ -361,11 +400,15 @@ func printShort(result: AnalysisResult) {
     }
     print("\n")
 
-    if let translationDuplication = result.translationDuplication, translationDuplication.count > 0 {
+    if result.translationDuplication.count > 0 {
         print("\nDuplicated Translations:")
-        result.translationDuplication?.keys.sorted().forEach { key in
-            print(key, result.translationDuplication![key]!.count)
+        result.translationDuplication.keys.sorted().forEach { key in
+            print(key, result.translationDuplication[key]!.count)
         }
+    }
+
+    if result.differentKeysInTranslations.count > 0 {
+        print("\n You have different key set for different languages, see LocalizedStringsToolResults.txt")
     }
 }
 
@@ -399,18 +442,40 @@ func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
         }
     }
 
-    if let translationDuplication = result.translationDuplication, translationDuplication.count > 0 {
+    if result.translationDuplication.count > 0 {
         resultTestString += "\n\n   Translation Duplication:"
 
-        translationDuplication.keys.sorted().forEach { langKey in
-            let count = translationDuplication[langKey]!.count
+        result.translationDuplication.keys.sorted().forEach { langKey in
+            let count = result.translationDuplication[langKey]!.count
             resultTestString += "\n\n==================================\n"
             resultTestString += langKey + ": \(count)"
             resultTestString += "\n==================================\n\n"
 
-            translationDuplication[langKey]!.forEach { translation, keys in
+            result.translationDuplication[langKey]!.forEach { translation, keys in
                 resultTestString += "\n   " + translation + "\n"
                 keys.forEach { key in
+                    resultTestString += "       " + key + "\n"
+                }
+            }
+        }
+    }
+
+    if result.differentKeysInTranslations.count > 0 {
+        resultTestString += "\n\n   Different Keys In Translations:"
+        result.differentKeysInTranslations.forEach { diff in
+            resultTestString += "\n\n==================================\n"
+            resultTestString += diff.firstLangName + " compared to: " + diff.secondLangName + "\n"
+
+            if diff.firstAddedKeys.count > 0 {
+                resultTestString += "\n   " + diff.firstLangName + " has extra keys: " + "\(diff.firstAddedKeys.count)" + "\n\n"
+                diff.firstAddedKeys.forEach { key in
+                    resultTestString += "       " + key + "\n"
+                }
+            }
+
+            if diff.firstDeletedKeys.count > 0 {
+                resultTestString += "\n   " + diff.firstLangName + " has no keys: " + "\(diff.firstDeletedKeys.count)" + "\n\n"
+                diff.firstDeletedKeys.forEach { key in
                     resultTestString += "       " + key + "\n"
                 }
             }
@@ -571,7 +636,7 @@ func processLocalizableFiles(settings: Settings,
                              availableKeys: inout [String: Set<String>],
                              dispatchGroup: DispatchGroup) {
 
-    let localizedSectionPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*(("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">(.*)\s?)")*;)+"#
+    let localizedSectionPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">.+?\s*?.+?)";)+?"#
 
     let concurrentQueue = DispatchQueue(label: "processSwiftFiles", attributes: .concurrent)
     let taskGroup = DispatchGroup()
@@ -695,7 +760,7 @@ func getObjCKeyPattern(settings: Settings) -> String {
     var pattern = #"("#
 
     for prefix in settings.customObjCPatternPrefixes {
-        pattern += prefix + #"|"#
+        pattern += escaped(prefix) + #"|"#
     }
     pattern.removeLast()
     pattern += #")@"(?<"# + keyVariableCaptureName + #">\S*)"\)*"#
@@ -703,11 +768,19 @@ func getObjCKeyPattern(settings: Settings) -> String {
     return pattern
 }
 
+func escaped(_ string: String) -> String {
+    print(string)
+
+    print(NSRegularExpression.escapedTemplate(for: string))
+    print(NSRegularExpression.escapedPattern(for: string))
+    return NSRegularExpression.escapedPattern(for: string)
+}
+
 func getSwiftKeyPatterns(settings: Settings) -> [String] {
     var suffixPattern = #""(?<"# + keyVariableCaptureName + #">\S*)"("#
 
     for suffix in settings.customSwiftPatternSuffixes {
-        suffixPattern += suffix + #"|"#
+        suffixPattern += escaped(suffix) + #"|"#
     }
     suffixPattern.removeLast()
     suffixPattern += #")\(\)"#
@@ -715,7 +788,7 @@ func getSwiftKeyPatterns(settings: Settings) -> [String] {
     var prefixPattern = #"("#
 
     for prefix in settings.customSwiftPatternPrefixes {
-        prefixPattern += prefix + #"|"#
+        prefixPattern += escaped(prefix) + #"|"#
     }
     prefixPattern.removeLast()
     prefixPattern += #")\("(?<"# + keyVariableCaptureName + #">\S*)"\)"#
@@ -727,13 +800,13 @@ func getAllSwiftStringPattern(settings: Settings) -> String {
     var pattern = ""
 
     settings.swiftPatternPrefixExceptions.forEach { exception in
-        pattern += #"(?<!("# + exception + #"))"#
+        pattern += #"(?<!("# + escaped(exception) + #"))"#
     }
 
     pattern += #"(?:"(?<"# + keyVariableCaptureName + #">"#
 
     for prefix in settings.keyNamePrefixExceptions {
-        pattern += #"(?!"# + prefix + #")"#
+        pattern += #"(?!"# + escaped(prefix) + #")"#
     }
 
     pattern += settings.keyNamePattern + #")")*(?:"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
@@ -745,12 +818,12 @@ func getAllObjCStringPattern(settings: Settings) -> String {
     var pattern = ""
 
     settings.objCPatternPrefixExceptions.forEach { exception in
-        pattern += #"(?<!("# + exception + #"))"#
+        pattern += #"(?<!("# + escaped(exception) + #"))"#
     }
 
     pattern += #"(?:@"(?<"# + keyVariableCaptureName + #">"#
     for prefix in settings.keyNamePrefixExceptions {
-        pattern += #"(?!"# + prefix + #")"#
+        pattern += #"(?!"# + escaped(prefix) + #")"#
     }
     pattern += settings.keyNamePattern + #")")*(?:@"(?<"# + anyStringVariableCaptureName + #">\S*)")*"#
 
