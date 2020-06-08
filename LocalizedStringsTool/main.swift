@@ -58,6 +58,7 @@ struct TranslationKeysDiff {
 struct AnalysisResult {
     let unusedTranslations: [String: [Section]]
     let untranslatedKeys: [String: Set<String>]
+    //                           lang  translation  keys
     let translationDuplication: [String: [String: [String]]]?
     let allUntranslatedStrings: [String]?
     let differentKeysInTranslations: [TranslationKeysDiff]?
@@ -251,6 +252,7 @@ func getAnalysisResult(settings: Settings,
                        objCKeys: Set<String>,
                        availableKeys: [String: Set<String>],
                        localizationsDict: [String: [Section]]) -> AnalysisResult {
+
     let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
     var untranslatedKeys = [String: Set<String>]()
 
@@ -262,9 +264,14 @@ func getAnalysisResult(settings: Settings,
     }
 
     var unusedLocalizationsDict = [String: [Section]]()
+    var translationDuplication = [String: [String: Set<String>]]()
 
-    localizationsDict.keys.forEach { key in
-        localizationsDict[key]?.forEach { (section: Section) in
+    let concurrentQueue = DispatchQueue(label: "TranslationDuplication", attributes: .concurrent)
+    let taskGroup = DispatchGroup()
+
+    localizationsDict.keys.forEach { langKey in
+
+        localizationsDict[langKey]?.forEach { (section: Section) in
             var unusedSection = Section(name: section.name, translations: [TranslationPair]())
             section.translations.forEach { pair in
                 if !combinedUsedLocalizedKeys.contains(pair.key) && !settings.excludedTranslationKeys.contains(pair.key) {
@@ -272,10 +279,61 @@ func getAnalysisResult(settings: Settings,
                 }
             }
             if unusedSection.translations.count > 0 {
-                if unusedLocalizationsDict[key] != nil {
-                    unusedLocalizationsDict[key]?.append(unusedSection)
+                if unusedLocalizationsDict[langKey] != nil {
+                    unusedLocalizationsDict[langKey]?.append(unusedSection)
                 } else {
-                    unusedLocalizationsDict[key] = [unusedSection]
+                    unusedLocalizationsDict[langKey] = [unusedSection]
+                }
+            }
+
+            if settings.translationDuplication {
+                section.translations.map { $0.translation }
+                    .forEach { targetTranslation in
+                        taskGroup.enter()
+                        concurrentQueue.async {
+                            localizationsDict[langKey]?.forEach { (section: Section) in
+                                section.translations.forEach { key, translation in
+                                    if translation == targetTranslation {
+                                        syncQueue.sync {
+                                            if translationDuplication.keys.contains(langKey) {
+                                                if translationDuplication[langKey]!.keys.contains(targetTranslation) {
+                                                    if translationDuplication[langKey]![targetTranslation] != nil {
+                                                        translationDuplication[langKey]![targetTranslation]!.insert(key)
+                                                    } else {
+                                                    }
+                                                } else {
+                                                    var set = Set<String>()
+                                                    set.insert(key)
+                                                    translationDuplication[langKey]![targetTranslation] = set
+                                                }
+                                            } else {
+                                                var set = Set<String>()
+                                                set.insert(key)
+                                                let dict: [String: Set<String>] = [targetTranslation: set]
+                                                translationDuplication[langKey] = dict
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            taskGroup.leave()
+                        }
+                    }
+            }
+        }
+    }
+    taskGroup.wait()
+    var realTranslationDuplication = [String: [String: [String]]]()
+    if settings.translationDuplication {
+
+        translationDuplication.keys.forEach { langKey in
+            translationDuplication[langKey]!.keys.forEach { translation in
+                if translationDuplication[langKey]![translation]!.count > 1 {
+                    if realTranslationDuplication[langKey] != nil {
+                        realTranslationDuplication[langKey]![translation] = Array(translationDuplication[langKey]![translation]!)
+                    } else {
+                        realTranslationDuplication[langKey] = [translation: Array(translationDuplication[langKey]![translation]!)]
+                    }
                 }
             }
         }
@@ -284,31 +342,38 @@ func getAnalysisResult(settings: Settings,
     return AnalysisResult(
         unusedTranslations: unusedLocalizationsDict,
         untranslatedKeys: untranslatedKeys,
-        translationDuplication: nil,
+        translationDuplication: realTranslationDuplication,
         allUntranslatedStrings: nil,
         differentKeysInTranslations: nil
     )
 }
 
 func printShort(result: AnalysisResult) {
-    print("\nUntranslatedKeys:")
+    print("\nUntranslated Keys:")
     result.untranslatedKeys.keys.sorted().forEach { key in
         print(key, result.untranslatedKeys[key]!.count)
     }
-    print("\n\nUnusedTranslations")
+    print("\n\nUnused Translations:")
 
     result.unusedTranslations.keys.sorted().forEach { key in
         let count = result.unusedTranslations[key]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
         print(key, count)
     }
     print("\n")
+
+    if let translationDuplication = result.translationDuplication, translationDuplication.count > 0 {
+        print("\nDuplicated Translations:")
+        result.translationDuplication?.keys.sorted().forEach { key in
+            print(key, result.translationDuplication![key]!.count)
+        }
+    }
 }
 
 func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
     let outputFilePathUrl = URL(fileURLWithPath: settingsFileFolder + "/LocalizedStringsToolResults.txt")
     var resultTestString = "        LocalizedStringsToolResults\n"
 
-    resultTestString += "\n\n   UntranslatedKeys:\n\n"
+    resultTestString += "\n\n   Untranslated Keys:\n\n"
     result.untranslatedKeys.keys.sorted().forEach { langKey in
         let count = result.untranslatedKeys[langKey]!.count
         resultTestString += "\n" + langKey + ": \(count) \n"
@@ -318,7 +383,7 @@ func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
         }
     }
 
-    resultTestString += "\n\n   UnusedTranslations:"
+    resultTestString += "\n\n   Unused Translations:"
 
     result.unusedTranslations.keys.sorted().forEach { langKey in
         let count = result.unusedTranslations[langKey]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
@@ -330,6 +395,24 @@ func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
             resultTestString += "\n   " + section.name + "\n"
             section.translations.forEach { key, translation in
                 resultTestString += "       " + key + "\n"
+            }
+        }
+    }
+
+    if let translationDuplication = result.translationDuplication, translationDuplication.count > 0 {
+        resultTestString += "\n\n   Translation Duplication:"
+
+        translationDuplication.keys.sorted().forEach { langKey in
+            let count = translationDuplication[langKey]!.count
+            resultTestString += "\n\n==================================\n"
+            resultTestString += langKey + ": \(count)"
+            resultTestString += "\n==================================\n\n"
+
+            translationDuplication[langKey]!.forEach { translation, keys in
+                resultTestString += "\n   " + translation + "\n"
+                keys.forEach { key in
+                    resultTestString += "       " + key + "\n"
+                }
             }
         }
     }
@@ -566,10 +649,7 @@ func processLocalizableDictFiles(settings: Settings,
                                  availableKeys: inout [String: Set<String>],
                                  dispatchGroup: DispatchGroup) {
 
-    let taskGroup = DispatchGroup()
-
     localizableDictFilePathDict.forEach { dirPath in
-        taskGroup.enter()
         let path = (settings.projectRootFolderPath + "/" + dirPath)
         let fileURL = URL(fileURLWithPath: path)
         autoreleasepool {
@@ -581,9 +661,7 @@ func processLocalizableDictFiles(settings: Settings,
             }
         }
         increaseProgress()
-        taskGroup.leave()
     }
-    taskGroup.wait()
 
     dispatchGroup.leave()
 }
