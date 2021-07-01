@@ -1,4 +1,4 @@
-LocalizedStringsTool
+# LocalizedStringsTool
 
 What is it
 
@@ -96,9 +96,3 @@ If file path has this string as part, it will be ignored
 Example: “Pods”
 
 
-
-
-
-
-
-# LocalizedStringsTool
