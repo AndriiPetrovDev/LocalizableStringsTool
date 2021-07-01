@@ -1,25 +1,29 @@
 LocalizedStringsTool
 
-1. What is it
+What is it
+
 LocalizedStringsTool is a tool that performs LocalizedStrings analisys  and helps you to clean up your translations
 If you use SwiftGen or R you don’t need this tool
 
 
-1. What is it for
+What is it for
+
 LocalizedStringsTool can help you to find:
 - Untranslated keys in your code
 - Unused translations 
 - Translation duplications
 - Difference in keys set for every languages pair
 
-1. How to use
+How to use
+
 -prepare your custom settings file LocalizedStringsTool.plist or use default one (see next point to understand settings)
 Just download main.swift file and execute it in your terminal 
 
 $ swift <path to main.swift>
 
 
-1. How to setup LocalizedStringsTool.plist 
+How to setup LocalizedStringsTool.plist 
+    
 projectRootFolderPath
 Absolute path to your project root folder
 
