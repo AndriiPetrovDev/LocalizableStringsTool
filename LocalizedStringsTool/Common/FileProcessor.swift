@@ -6,7 +6,6 @@
 import Foundation
 
 struct FileProcessor {
-
     static func processSwiftFiles(settings: Settings,
                                   swiftKeyPatterns: [String],
                                   allSwiftStringPattern: String,
@@ -16,7 +15,7 @@ struct FileProcessor {
                                   allProbablyKeys: inout Set<String>,
                                   syncQueue: DispatchQueue,
                                   parentTaskGroup: DispatchGroup,
-                                  progressHelper: ProgressHelper) {
+                                  progressHelper: ProgressLogger) {
         let concurrentQueue = DispatchQueue(label: "processSwiftFiles", attributes: .concurrent)
         let taskGroup = DispatchGroup()
 
@@ -33,18 +32,18 @@ struct FileProcessor {
                         encoding: .utf8
                     ) {
                         swiftKeyPatterns.forEach { pattern in
-                            RegExpHelper.matchingStrings(regex: pattern, text: fileText)
+                            RegExpProvider.matchingStrings(regex: pattern, text: fileText)
                                 .map { $0.first }
                                 .compactMap { $0 }
                                 .forEach { key in syncQueue.sync { _swiftKeys.insert(key) } }
                         }
                         if settings.allUntranslatedStrings {
-                            RegExpHelper.matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                            RegExpProvider.matchingStrings(regex: allSwiftStringPattern, text: fileText, names: [anyStringVariableCaptureName])
                                 .map { $0.first }
                                 .compactMap { $0 }
                                 .forEach { key in syncQueue.sync { _allStrings.insert(key) } }
                         }
-                        RegExpHelper.matchingStrings(regex: allSwiftStringPattern, text: fileText)
+                        RegExpProvider.matchingStrings(regex: allSwiftStringPattern, text: fileText)
                             .map { $0.first }
                             .compactMap { $0 }
                             .forEach { key in syncQueue.sync { _allProbablyKeys.insert(key) } }
@@ -72,7 +71,7 @@ struct FileProcessor {
                                  allProbablyKeys: inout Set<String>,
                                  syncQueue: DispatchQueue,
                                  parentTaskGroup: DispatchGroup,
-                                 progressHelper: ProgressHelper) {
+                                 progressHelper: ProgressLogger) {
         let concurrentQueue = DispatchQueue(label: "processObjCFiles", attributes: .concurrent)
         let taskGroup = DispatchGroup()
 
@@ -88,17 +87,17 @@ struct FileProcessor {
                         contentsOf: URL(fileURLWithPath: settings.projectRootFolderPath + "/" + filePath),
                         encoding: .utf8
                     ) {
-                        RegExpHelper.matchingStrings(regex: objCKeyPattern, text: fileText)
+                        RegExpProvider.matchingStrings(regex: objCKeyPattern, text: fileText)
                             .map { $0.first }
                             .compactMap { $0 }
                             .forEach { key in syncQueue.sync { _objCKeys.insert(key) } }
                         if settings.allUntranslatedStrings {
-                            RegExpHelper.matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
+                            RegExpProvider.matchingStrings(regex: allObjCStringPattern, text: fileText, names: [anyStringVariableCaptureName])
                                 .map { $0.first }
                                 .compactMap { $0 }
                                 .forEach { key in syncQueue.sync { _allStrings.insert(key) } }
                         }
-                        RegExpHelper.matchingStrings(regex: allObjCStringPattern, text: fileText)
+                        RegExpProvider.matchingStrings(regex: allObjCStringPattern, text: fileText)
                             .map { $0.first }
                             .compactMap { $0 }
                             .forEach { key in syncQueue.sync { _allProbablyKeys.insert(key) } }
@@ -124,7 +123,7 @@ struct FileProcessor {
                                         availableKeys: inout [String: Set<String>],
                                         syncQueue: DispatchQueue,
                                         parentTaskGroup: DispatchGroup,
-                                        progressHelper: ProgressHelper) {
+                                        progressHelper: ProgressLogger) {
         let localizedSectionPattern = #"(?<"# + translationSectionVariableCaptureName + #">(\/\*([^\*\/])+\*\/)|(\/\/.+\n+)+)*\n*("(?<"# + keyVariableCaptureName + #">\S*)" = "(?<"# + translationVariableCaptureName + #">.+?\s*?.+?)";)+?"#
 
         let concurrentQueue = DispatchQueue(label: "processSwiftFiles", attributes: .concurrent)
@@ -146,7 +145,7 @@ struct FileProcessor {
                         let arr = [fileText8, fileText16].compactMap { $0 }
 
                         if let fileText = arr.first {
-                            let searchResults: [[String]] = RegExpHelper.matchingStrings(
+                            let searchResults: [[String]] = RegExpProvider.matchingStrings(
                                 regex: localizedSectionPattern,
                                 text: fileText,
                                 names: [translationSectionVariableCaptureName, keyVariableCaptureName, translationVariableCaptureName]
@@ -169,7 +168,7 @@ struct FileProcessor {
                                     }
                                 }
                             }
-                            if let name = RegExpHelper.langName(for: dirPath) {
+                            if let name = RegExpProvider.langName(for: dirPath) {
                                 syncQueue.sync { _localizationsDict[name] = sections }
                                 syncQueue.sync { _availableKeys[name] = oneLangAvailableKeys }
                             }
@@ -204,13 +203,13 @@ struct FileProcessor {
                                             availableKeys: inout [String: Set<String>],
                                             syncQueue: DispatchQueue,
                                             parentTaskGroup: DispatchGroup,
-                                            progressHelper: ProgressHelper) {
+                                            progressHelper: ProgressLogger) {
         localizableDictFilePathDict.forEach { dirPath in
             let path = (settings.projectRootFolderPath + "/" + dirPath)
             let fileURL = URL(fileURLWithPath: path)
             autoreleasepool {
                 if let dict = NSDictionary(contentsOf: fileURL) as? [String: AnyObject] {
-                    if let name = RegExpHelper.langName(for: dirPath) {
+                    if let name = RegExpProvider.langName(for: dirPath) {
                         syncQueue.sync {
                             availableKeys[name] = Set(dict.keys).union(availableKeys[name] ?? Set<String>())
                         }
@@ -234,18 +233,25 @@ struct FileProcessor {
             let fileURL = URL(fileURLWithPath: path)
             let data = try Data(contentsOf: fileURL)
 
-            return try PropertyListDecoder().decode(Settings.self, from: data)
+            var settings = try PropertyListDecoder().decode(Settings.self, from: data)
+            if settings.projectRootFolderPath == "" || settings.projectRootFolderPath == " " {
+                settings.projectRootFolderPath = getProjectRootFolderPath()
+            }
+            return settings
         } catch {
             print(error.localizedDescription)
             print("Default settings will be used")
 
+            let projectRootFolderPath = getProjectRootFolderPath()
+            settingsFileFolder = projectRootFolderPath
+
             return Settings(
-                projectRootFolderPath: settingsFileFolder,
+                projectRootFolderPath: projectRootFolderPath,
                 unusedTranslations: true,
                 translationDuplication: true,
                 untranslatedKeys: true,
                 allUntranslatedStrings: false,
-                differentKeysInTranslations: false,
+                differentKeysInTranslations: true,
                 shouldAnalyzeSwift: true,
                 shouldAnalyzeObjC: true,
                 customSwiftPatternPrefixes: [#"NSLocalizedString("#],
@@ -253,13 +259,32 @@ struct FileProcessor {
                 customObjCPatternPrefixes: [#"NSLocalizedString("#],
                 keyNamePrefixExceptions: [],
                 keyNamePattern: #"[.]+"#,
-                excludedKeys: [],
-                excludedTranslationKeys: [],
+                excludedUntranslatedKeys: [],
+                excludedUnusedKeys: [],
                 swiftPatternPrefixExceptions: [],
                 objCPatternPrefixExceptions: [],
-                folderExcludedNames: ["Pods"]
+                excludedFoldersNameComponents: ["Pods"]
             )
         }
     }
 
+    private static func getProjectRootFolderPath() -> String {
+        var projectRootFolderPath = ""
+
+        while projectRootFolderPath == "" || projectRootFolderPath == " " {
+            print(#"Enter project root folder absolute path:"#)
+            projectRootFolderPath = readLine() ?? ""
+            if projectRootFolderPath.prefix(2) == #"//"# {
+                projectRootFolderPath = String(projectRootFolderPath.dropFirst())
+            }
+            if projectRootFolderPath.prefix(1) != #"/"# {
+                projectRootFolderPath = #"/"# + projectRootFolderPath
+            }
+            if projectRootFolderPath.suffix(1) == #"/"# {
+                projectRootFolderPath = String(projectRootFolderPath.dropLast())
+            }
+            print("")
+        }
+        return projectRootFolderPath
+    }
 }

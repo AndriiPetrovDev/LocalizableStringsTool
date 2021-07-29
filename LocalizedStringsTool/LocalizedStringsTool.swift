@@ -6,7 +6,7 @@
 import Foundation
 
 final class LocalizedStringsTool {
-    let progressHelper = ProgressHelper()
+    let progressHelper = ProgressLogger()
 
     var swiftFilePathSet = Set<String>()
     var hFilePathSet = Set<String>()
@@ -14,7 +14,7 @@ final class LocalizedStringsTool {
     var localizableFilePathArray = [String]()
     var localizableDictFilePathArray = [String]()
 
-    let settingsFilePath = FilePathHelper.getSettingsFilePath()
+    let settingsFilePath = FilePathProvider.getSettingsFilePath()
     var settingsFileFolder: String = ""
     lazy var settings: Settings = {
         FileProcessor.readPlist(settingsFilePath: settingsFilePath, settingsFileFolder: &settingsFileFolder)
@@ -37,26 +37,24 @@ final class LocalizedStringsTool {
         getFilePaths()
         processFiles()
         getResult()
-        progressHelper.calculateConsumedTime()
     }
 
     private func getFilePaths() {
-        FilePathHelper.getAllFilesPaths(settings: settings,
-                                        swiftFilePathSet: &swiftFilePathSet,
-                                        hFilePathSet: &hFilePathSet,
-                                        mFilePathSet: &mFilePathSet,
-                                        localizableFilePathArray: &localizableFilePathArray,
-                                        localizableDictFilePathArray: &localizableDictFilePathArray,
-                                        progressHelper: progressHelper
-        )
+        FilePathProvider.getAllFilesPaths(settings: &settings,
+                                          swiftFilePathSet: &swiftFilePathSet,
+                                          hFilePathSet: &hFilePathSet,
+                                          mFilePathSet: &mFilePathSet,
+                                          localizableFilePathArray: &localizableFilePathArray,
+                                          localizableDictFilePathArray: &localizableDictFilePathArray,
+                                          progressHelper: progressHelper)
     }
 
     private func processFiles() {
         if settings.shouldAnalyzeSwift {
             taskGroup.enter()
             concurrentQueue.async { [self] in
-                let swiftKeyPatterns = RegExpHelper.getSwiftKeyPatterns(settings: settings)
-                let allSwiftStringPattern = RegExpHelper.getAllSwiftStringPattern(settings: settings)
+                let swiftKeyPatterns = RegExpProvider.getSwiftKeyPatterns(settings: settings)
+                let allSwiftStringPattern = RegExpProvider.getAllSwiftStringPattern(settings: settings)
                 FileProcessor.processSwiftFiles(settings: settings,
                                                 swiftKeyPatterns: swiftKeyPatterns,
                                                 allSwiftStringPattern: allSwiftStringPattern,
@@ -73,8 +71,8 @@ final class LocalizedStringsTool {
             taskGroup.enter()
             concurrentQueue.async { [self] in
                 let objCFilePathSet = mFilePathSet.union(hFilePathSet)
-                let objCKeyPattern = RegExpHelper.getObjCKeyPattern(settings: settings)
-                let allObjCStringPattern = RegExpHelper.getAllObjCStringPattern(settings: settings)
+                let objCKeyPattern = RegExpProvider.getObjCKeyPattern(settings: settings)
+                let allObjCStringPattern = RegExpProvider.getAllObjCStringPattern(settings: settings)
 
                 FileProcessor.processObjCFiles(settings: settings,
                                                objCKeyPattern: objCKeyPattern,
@@ -122,9 +120,11 @@ final class LocalizedStringsTool {
             syncQueue: syncQueue,
             localizationsDict: localizationsDict
         )
+
+        progressHelper.calculateConsumedTime()
+
         AnalysisResultProvider.printShort(result: result)
 
-        AnalysisResultProvider.saveToFile(result: result, settingsFileFolder: settingsFileFolder)
+        AnalysisResultProvider.saveToFile(result: result, allStrings: Array(allStrings).sorted(), settingsFileFolder: settingsFileFolder)
     }
-
 }

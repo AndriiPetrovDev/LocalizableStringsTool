@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>projectRootFolderPath</key>
-	<string>/Users/andrewmbp-office/ftband-bank-ios</string>
+	<string></string>
 	<key>unusedTranslations</key>
 	<true/>
 	<key>translationDuplication</key>
@@ -75,7 +75,7 @@
 	</array>
 	<key>keyNamePattern</key>
 	<string>[_a-z0-9]*[_][a-z0-9]+</string>
-	<key>excludedTranslationKeys</key>
+	<key>excludedUnusedKeys</key>
 	<array>
 		<string>intro_jar_and_rewards_miles_title</string>
 		<string>intro_jar_and_rewards_cashback_title</string>
@@ -91,11 +91,11 @@
 		<string>jar_description_change</string>
 		<string>jar_settings_add_description</string>
 	</array>
-	<key>excludedKeys</key>
+	<key>excludedUntranslatedKeys</key>
 	<array>
 		<string>credit_details_uah&quot;))</string>
 	</array>
-	<key>folderExcludedNames</key>
+	<key>excludedFoldersNameComponents</key>
 	<array>
 		<string>MiSnapSDK</string>
 		<string>Pods</string>

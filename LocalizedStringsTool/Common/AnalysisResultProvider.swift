@@ -6,21 +6,19 @@
 import Foundation
 
 struct AnalysisResultProvider {
-
     static func getAnalysisResult(settings: Settings,
                                   swiftKeys: Set<String>,
                                   objCKeys: Set<String>,
                                   availableKeys: [String: Set<String>],
                                   syncQueue: DispatchQueue,
                                   localizationsDict: [String: [Section]]) -> AnalysisResult {
-
         let combinedUsedLocalizedKeys = swiftKeys.union(objCKeys)
         var untranslatedKeys = [String: Set<String>]()
 
         availableKeys.keys.forEach { (key: String) in
             var usedKeys = combinedUsedLocalizedKeys
             usedKeys.subtract(availableKeys[key]!)
-            usedKeys.subtract(Set(settings.excludedKeys))
+            usedKeys.subtract(Set(settings.excludedUntranslatedKeys))
             untranslatedKeys[key] = usedKeys
         }
 
@@ -34,11 +32,11 @@ struct AnalysisResultProvider {
             localizationsDict[langKey]?.forEach { (section: Section) in
                 var unusedSection = Section(name: section.name, translations: [Translation]())
                 section.translations.forEach { pair in
-                    if !combinedUsedLocalizedKeys.contains(pair.key) && !settings.excludedTranslationKeys.contains(pair.key) {
+                    if !combinedUsedLocalizedKeys.contains(pair.key) && !settings.excludedUnusedKeys.contains(pair.key) {
                         unusedSection.translations.append(pair)
                     }
                 }
-                dump(unusedSection)
+
                 if unusedSection.translations.count > 0 {
                     if unusedLocalizationsDict[langKey] != nil {
                         unusedLocalizationsDict[langKey]?.append(unusedSection)
@@ -66,8 +64,7 @@ struct AnalysisResultProvider {
                                                     if translationDuplication[langKey]!.keys.contains(targetTranslation) {
                                                         if translationDuplication[langKey]![targetTranslation] != nil {
                                                             translationDuplication[langKey]![targetTranslation]!.insert(translation.key)
-                                                        } else {
-                                                        }
+                                                        } else {}
                                                     } else {
                                                         var set = Set<String>()
                                                         set.insert(translation.key)
@@ -160,21 +157,20 @@ struct AnalysisResultProvider {
             let count = result.unusedTranslations[key]!.reduce(0) { (result: Int, section: Section) in result + section.translations.count }
             print(key, count)
         }
-        print("\n")
 
         if result.translationDuplication.count > 0 {
-            print("\nDuplicated Translations:")
+            print("\n\nDuplicated Translations:")
             result.translationDuplication.keys.sorted().forEach { key in
                 print(key, result.translationDuplication[key]!.count)
             }
         }
 
         if result.differentKeysInTranslations.count > 0 {
-            print("\n You have different key set for different languages, see LocalizedStringsToolResults.txt")
+            print("\nYou have different key sets for different languages")
         }
     }
 
-    static func saveToFile(result: AnalysisResult, settingsFileFolder: String) {
+    static func saveToFile(result: AnalysisResult, allStrings: [String], settingsFileFolder: String) {
         let outputFilePathUrl = URL(fileURLWithPath: settingsFileFolder + "/LocalizedStringsToolResults.txt")
         var resultTestString = "        LocalizedStringsToolResults\n"
 
@@ -244,8 +240,17 @@ struct AnalysisResultProvider {
             }
         }
 
+        if allStrings.count > 0 {
+            resultTestString += "\n\n   All Possible Untranslated \"KEYS\":"
+
+            allStrings.forEach { string in
+                resultTestString += "       " + string + "\n"
+            }
+        }
+
         do {
             try resultTestString.write(to: outputFilePathUrl, atomically: true, encoding: String.Encoding.utf8)
+            print("Please check \(outputFilePathUrl.path) for details")
         } catch {
             print(error)
         }

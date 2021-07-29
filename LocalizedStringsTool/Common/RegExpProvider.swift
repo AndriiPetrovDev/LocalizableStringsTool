@@ -10,8 +10,7 @@ let translationVariableCaptureName = "TRANSLATION"
 let translationSectionVariableCaptureName = "SECTION"
 let anyStringVariableCaptureName = "ANYSTRING"
 
-struct RegExpHelper {
-
+struct RegExpProvider {
     static func matchingStrings(regex: String, text: String, names: [String] = [keyVariableCaptureName]) -> [[String]] {
         guard let regex = try? NSRegularExpression(pattern: regex, options: []) else { return [] }
 
@@ -20,14 +19,14 @@ struct RegExpHelper {
 
         return results
             .map { result -> [String] in
-            names
-                .map { (name: String) -> String? in
-                    result.range(withName: name).location != NSNotFound
-                        ? nsText.substring(with: result.range(withName: name))
-                        : nil
-                }
-                .compactMap { $0 }
-        }
+                names
+                    .map { (name: String) -> String? in
+                        result.range(withName: name).location != NSNotFound
+                            ? nsText.substring(with: result.range(withName: name))
+                            : nil
+                    }
+                    .compactMap { $0 }
+            }
     }
 
     static func langName(for filePath: String) -> String? {
@@ -50,10 +49,6 @@ struct RegExpHelper {
     }
 
     static func escaped(_ string: String) -> String {
-        print(string)
-
-        print(NSRegularExpression.escapedTemplate(for: string))
-        print(NSRegularExpression.escapedPattern(for: string))
         return NSRegularExpression.escapedPattern(for: string)
     }
 

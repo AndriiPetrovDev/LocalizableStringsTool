@@ -120,5 +120,21 @@
             endingLineNumber = "402">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            uuid = "69EAE3AF-B4EA-49A5-B62E-1A877C0F2625"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LocalizedStringsTool/Methods/FilePathHelper.swift"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "35"
+            endingLineNumber = "35"
+            landmarkName = "getAllFilesPaths(settings:swiftFilePathSet:hFilePathSet:mFilePathSet:localizableFilePathArray:localizableDictFilePathArray:progressHelper:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

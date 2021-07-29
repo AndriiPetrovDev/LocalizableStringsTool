@@ -5,21 +5,23 @@
 
 import Foundation
 
-struct FilePathHelper {
-
-    static func getAllFilesPaths(settings: Settings,
+struct FilePathProvider {
+    static func getAllFilesPaths(settings: inout Settings,
                                  swiftFilePathSet: inout Set<String>,
                                  hFilePathSet: inout Set<String>,
                                  mFilePathSet: inout Set<String>,
                                  localizableFilePathArray: inout [String],
                                  localizableDictFilePathArray: inout [String],
-                                 progressHelper: ProgressHelper) {
+                                 progressHelper: ProgressLogger) {
         let manager = FileManager.default
+
+        progressHelper.startTime = Date()
+
         let enumerator = manager.enumerator(atPath: settings.projectRootFolderPath)
 
         while let element = enumerator?.nextObject() as? String {
             var shouldHandlePath = true
-            for pathElement in settings.folderExcludedNames {
+            for pathElement in settings.excludedFoldersNameComponents {
                 if element.contains(pathElement) {
                     shouldHandlePath = false
                 }
@@ -44,12 +46,16 @@ struct FilePathHelper {
 
     static func getSettingsFilePath() -> String? {
         print(#"Enter "LocalizedStringsTool.plist" absolute path:"#)
-        let path = readLine()
-        if let path = path, !path.isEmpty {
+        var path = readLine() ?? ""
+        if path.prefix(1) != #"/"# {
+            path = #"/"# + path
+        }
+        if !path.isEmpty {
+            print("")
             return path
         } else {
+            print("")
             return nil
         }
     }
-
 }

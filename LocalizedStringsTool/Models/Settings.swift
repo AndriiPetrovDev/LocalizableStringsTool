@@ -6,7 +6,7 @@
 import Foundation
 
 struct Settings: Decodable {
-    let projectRootFolderPath: String
+    var projectRootFolderPath: String
 
     let unusedTranslations: Bool
     let translationDuplication: Bool
@@ -23,10 +23,9 @@ struct Settings: Decodable {
 
     let keyNamePrefixExceptions: [String]
     let keyNamePattern: String
-    let excludedKeys: [String]
-    let excludedTranslationKeys: [String]
+    let excludedUntranslatedKeys: [String]
+    let excludedUnusedKeys: [String]
     let swiftPatternPrefixExceptions: [String]
     let objCPatternPrefixExceptions: [String]
-    let folderExcludedNames: [String]
-
+    let excludedFoldersNameComponents: [String]
 }

@@ -5,9 +5,8 @@
 
 import Foundation
 
-final class ProgressHelper {
-
-    let startTime = Date()
+final class ProgressLogger {
+    var startTime = Date()
 
     var commonFilesCount = 0
     var currentFilesCountHandled = 0
@@ -20,10 +19,10 @@ final class ProgressHelper {
 
         currentLength = max(0, currentLength)
         var progressString = ""
-        for _ in 0 ..< currentLength {
+        for _ in 0..<currentLength {
             progressString += "■"
         }
-        for _ in 0 ..< maxLength - currentLength {
+        for _ in 0..<maxLength - currentLength {
             progressString += "□"
         }
         let resultString = String(format: "\u{1B}[1A\u{1B} %@ ", progressString)
@@ -33,8 +32,6 @@ final class ProgressHelper {
     func calculateConsumedTime() {
         let endTime = Date()
         let consumedTime = endTime.timeIntervalSinceReferenceDate - startTime.timeIntervalSinceReferenceDate
-        print("consumed time: ", Int(consumedTime), "sec")
-
+        print("\nAnalysis is finished, consumed time: ", Int(consumedTime), "sec")
     }
-
 }

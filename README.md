@@ -1,98 +1,121 @@
 # LocalizedStringsTool
 
-What is it
+##What is it
 
-LocalizedStringsTool is a tool that performs LocalizedStrings analisys  and helps you to clean up your translations
-If you use SwiftGen or R you don’t need this tool
+__LocalizedStringsTool__ is a tool that performs LocalizedStrings analysis and helps you to clean up your translations
 
+Unfortunately Xcode doesn't check translations on compile time, and sometime you see `**user_greating_key**` instead of `Wellcome` in your app.
+__LocalizedStringsTool__ aims to ensure you that your localization is fine
 
-What is it for
+___If you use [SwiftGen](https://github.com/SwiftGen/SwiftGen "SwiftGen") or [R.swift](https://github.com/mac-cain13/R.swift "R.swift")  you don’t need this tool___
 
-LocalizedStringsTool can help you to find:
+##What is it for
+
+LocalizedStringsTool can help you find:
 - Untranslated keys in your code
 - Unused translations 
 - Translation duplications
-- Difference in keys set for every languages pair
+- Difference in keys set for every language pair
 
-How to use
+##How to use
 
--prepare your custom settings file LocalizedStringsTool.plist or use default one (see next point to understand settings)
-Just download main.swift file and execute it in your terminal 
+* Prepare your custom settings file `LocalizedStringsTool.plist` or use default one (see next point to understand settings)
+* Just download __LocalizedStringsTool__ Unix Executable File and execute it in your terminal  
+-OR-
+* Clone the project and compile it by yourself
 
-$ swift <path to main.swift>
+##How to set up LocalizedStringsTool.plist
 
+###projectRootFolderPath
 
-How to setup LocalizedStringsTool.plist 
-    
-projectRootFolderPath
-Absolute path to your project root folder
+Absolute path to your project root folder  
+If it is absent the program will ask you for it
 
-unusedTranslations
-Enable or disable searching for unused translations in your Localizable.strings files
+###unusedTranslations
+Enable or disable searching for unused translations in your `Localizable.strings` files  
+default: `true`
 
-translationDuplication
-Enable or disable searching for translation duplications in your Localizable.strings files
-(Several different keys with the same value (translation string))
+###translationDuplication
+Enable or disable searching for translation duplications in your `Localizable.strings` files
+(Several keys with the same value (translation string))  
+default: `true`
 
-untranslatedKeys
-Enable or disable searching for keys without translation in your source code 
+###untranslatedKeys
+Enable or disable searching for keys without translation in your source code  
+default: `true`
 
-allUntranslatedStrings
-Temporary unavailable
+###allUntranslatedStrings
+Enable or disable searching for all strings, treating them as "keys" and adding
+"untranslated keys" to separate list. Could be helpful for some hard cases.  
+default: `false`
 
-differentKeysInTranslations
-Enable or disable searching for key sets difference for language pairs
-For example “en” has 100 keys and “ru” was 110 keys. Most likely you want to have the same keys for any language and now you can see absent or added keys
+###differentKeysInTranslations
+Enable or disable searching for key sets difference for language pairs  
+For example “en” has 100 keys and “ru” has 110 keys.  
+Most likely you want to have the same keys amount for any language and now you can see absent or added keys  
+default: `true`
 
-shouldAnalyzeSwift
-Enable or disable analyzing Swift files
+###shouldAnalyzeSwift
+Enable or disable analyzing Swift files  
+default: `true`
 
-shouldAnalyzeObjC
-Enable or disable analyzing Objective C files
+###shouldAnalyzeObjC
+Enable or disable analyzing Objective C files  
+default: `true`
 
-customSwiftPatternPrefixes
-If you use some custom wrappers for  NSLocalizedString(@"key", @"comment")
-For example it can be lang(“myKey”) and you should add here “lang\”
+###customSwiftPatternPrefixes
+If you use some custom wrappers for `NSLocalizedString("key", "comment")`  
+For example it can be `lang(“myKey”)` and you should add here `lang(`
 
-customSwiftPatternSuffixes
-The same but for suffixes. Add “.localized” if you use “myKey”.localized instead of  NSLocalizedString(@"key", @"comment")
+###customSwiftPatternSuffixes
+The same but for suffixes.   
+Add `.localized` if you use `“myKey”.localized` instead of `NSLocalizedString("key", "comment")`
 
-customObjCPatternPrefixes
-The same but for Obj C. Also add here prefixes that can help the program to find keys in source code
+###customObjCPatternPrefixes
+The same but for Obj C.   
+
+Also add here prefixes that can help the program to find keys in source code
 For example if you use keys as func parameters and made localisation inside it.
+```objectivec
++ (void)showAlertInViewController:(UIViewController *)controller
+                        withTitle:(NSString *)title
+                          message:(NSString *)message
+```
 
-- (RegistrationStepBuilder *(^)(NSString *))buttonTitle {
-    __weak typeof(self) weakSelf = self;
-    return ^RegistrationStepBuilder *(NSString *buttonTitle) {
-        weakSelf.step.buttonTitle = lang(buttonTitle);
-        return weakSelf;
-    };
-}
+and call it  
+```objectivec
+[IBAlertService showAlertInViewController:self
+                                withTitle:@"communal_company_delete_several"
+                                  message:@"communal_company_delete_continue"];
+```
+you should add `withTitle:` and `message:` here
 
-swiftPatternPrefixExceptions
+###swiftPatternPrefixExceptions
 
-Add here prefixes that tells that this is not localization key for sure, for example “Animation.named(“ for Animation.named(“animation_key”)
+Add here prefixes that tells that this is _not localization key for sure_.  
+For example `Animation.named(` for `Animation.named(“animation_key”)`
 
-objCPatternPrefixExceptions
+###objCPatternPrefixExceptions
 The same but for Obj C
 
+###keyNamePrefixExceptions
+If you have some prefix for your keys, that tells that this is _not a key for translation_, add it.  
+For example somebody uses `ic_` as prefix for all icons.
 
-keyNamePrefixExceptions
+###keyNamePattern
+Some specific rules for all your keys  
+Example: `[_a-z0-9]*[_][a-z0-9]+` for Snake case
 
-If you have some prefix for your keys, that tells that this is not a key for translation, add it. For example we use “ic_” as prefix for all icons.
+###excludedUnusedKeys
+Keys that the program mistakenly marks as unused  
+Add them to prevent adding unwanted keys to the result
 
-keyNamePattern
-Some specific rules for all your keys
-Example: [_a-z0-9]*[_][a-z0-9]+ for Snake case
+###excludedUntranslatedKeys
+Keys that the program mistakenly marks as not having a translation  
+Add them to prevent adding unwanted keys to the result
 
-excludedTranslationKeys
-Keys that the program mistakenly marks as unused
-
-excludedKeys
-Keys that the program mistakenly marks as not having a translation
-
-folderExcludedNames
-If file path has this string as part, it will be ignored
-Example: “Pods”
+###excludedFoldersNameComponents
+If file path has this string as part, it will be ignored  
+Example: `Pods`
 
 
