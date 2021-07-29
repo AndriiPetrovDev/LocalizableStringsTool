@@ -15,9 +15,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "430"
-            endingLineNumber = "430"
-            landmarkName = "saveToFile(result:settingsFileFolder:)"
-            landmarkType = "9">
+            endingLineNumber = "430">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -31,9 +29,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "431"
-            endingLineNumber = "431"
-            landmarkName = "saveToFile(result:settingsFileFolder:)"
-            landmarkType = "9">
+            endingLineNumber = "431">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -47,9 +43,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "406"
-            endingLineNumber = "406"
-            landmarkName = "printShort(result:)"
-            landmarkType = "9">
+            endingLineNumber = "406">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -63,9 +57,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "401"
-            endingLineNumber = "401"
-            landmarkName = "printShort(result:)"
-            landmarkType = "9">
+            endingLineNumber = "401">
          </BreakpointContent>
       </BreakpointProxy>
       <BreakpointProxy
@@ -79,12 +71,10 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "405"
-            endingLineNumber = "405"
-            landmarkName = "printShort(result:)"
-            landmarkType = "9">
+            endingLineNumber = "405">
             <Locations>
                <Location
-                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - e4070274633cbaa"
+                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - 7d6bdeed099c8288"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -99,7 +89,7 @@
                   offsetFromSymbolStart = "928">
                </Location>
                <Location
-                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - 44449c64f1b2492b"
+                  uuid = "868B4F26-DDF0-4C5F-91A1-FE529BEE963F - 376f32aebe1d006a"
                   shouldBeEnabled = "Yes"
                   ignoreCount = "0"
                   continueAfterRunningActions = "No"
@@ -127,9 +117,7 @@
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
             startingLineNumber = "402"
-            endingLineNumber = "402"
-            landmarkName = "printShort(result:)"
-            landmarkType = "9">
+            endingLineNumber = "402">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
