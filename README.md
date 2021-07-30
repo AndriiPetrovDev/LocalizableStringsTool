@@ -20,7 +20,8 @@ LocalizableStringsTool can help you find:
 
 ## How to use
 
-* Prepare your custom settings file `LocalizableStringsTool.plist` otherwise the program will use default settings (see next section for details)
+* Prepare your custom settings file `LocalizableStringsTool.plist` otherwise the program will use default settings (see next section for details)  
+Please check [__PlistExample__](https://github.com/AndrewPetrov/LocalizableStringsTool/tree/master/PlistExample "PlistExample")  folder for reference
 * Just download [__LocalizableStringsTool executable file__](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Precompiled/LocalizableStringsTool "file") and execute it in your terminal  
 -OR-
 * Clone the project and compile it by yourself
@@ -50,12 +51,12 @@ default: `true`
 
 ### allUntranslatedStrings
 Enable or disable searching for all strings, treating them as "keys" and adding
-"untranslated keys" to separate list. Could be helpful for some hard cases.  
+"untranslated" of them to a separate list at the end of `LocalizableStringsToolResults.txt` file. Could be helpful for some hard cases.  
 default: `false`
 
 ### differentKeysInTranslations
 Enable or disable searching for key sets difference for language pairs  
-For example “en” has 100 keys and “ru” has 110 keys.  
+For example `en` has 100 keys and `ru` has 110 keys.  
 Most likely you want to have the same keys amount for any language, and now you can see absent or added keys  
 default: `true`
 
@@ -80,8 +81,8 @@ Add `.localized` if you use `“myKey”.localized` instead of `NSLocalizedStrin
 The same but for Obj C.  
 default: `NSLocalizedString(`
 
-Also add here prefixes that can help the program to find keys in source code
-For example if you use keys as func parameters and made localisation inside it.
+Also add here prefixes that can help the program to find keys in source code.  
+For example if you use keys as func parameters and made localisation inside it
 ```objectivec
 + (void)showAlertInViewController:(UIViewController *)controller
                         withTitle:(NSString *)title
@@ -123,6 +124,6 @@ Add them to prevent adding unwanted keys to the result
 
 ### excludedFoldersNameComponents
 If file path has this string as part, it will be ignored  
-Example: `Pods`
+default: `Pods` because you probably don't want to check translation of third party libraries
 
 
