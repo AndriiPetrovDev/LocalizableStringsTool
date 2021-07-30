@@ -25,6 +25,7 @@ Please check [__PlistExample__](https://github.com/AndrewPetrov/LocalizableStrin
 * Just download [__LocalizableStringsTool executable file__](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Precompiled/LocalizableStringsTool "file") and execute it in your terminal  
 -OR-
 * Clone the project and compile it by yourself
+* When the work is finished you will get the brief result in the terminal and a detailed one in `LocalizableStringsToolResults.txt` file
 
 ### Example of the program execution
 ![Example](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Screenshots/ExecutionExample.png)
