@@ -4,6 +4,8 @@
 
 __LocalizableStringsTool__ is a tool that performs `Localizable.strings` analysis and helps you to clean up your translations
 
+## Motivation
+
 Unfortunately Xcode doesn't check translations on compile time,   
 and sometimes you see `**user_greating_key**` instead of `Wellcome` in your app.  
 __LocalizableStringsTool__ aims to ensure you that your localization is fine.
