@@ -26,7 +26,7 @@ LocalizableStringsTool can help you find:
 * Clone the project and compile it by yourself
 
 ### Example of the program execution
-![Example](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Images/Screenshot%202021-07-30%20at%2002.17.29.png)
+![Example](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Screenshots/ExecutionExample.png)
 
 ## How to set up LocalizableStringsTool.plist
 
