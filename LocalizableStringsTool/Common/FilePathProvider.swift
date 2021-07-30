@@ -45,7 +45,7 @@ struct FilePathProvider {
     }
 
     static func getSettingsFilePath() -> String? {
-        print(#"Enter "LocalizedStringsTool.plist" absolute path:"#)
+        print(#"Enter "LocalizableStringsTool.plist" absolute path:"#)
         var path = readLine() ?? ""
         if path.prefix(1) != #"/"# {
             path = #"/"# + path

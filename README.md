@@ -1,18 +1,18 @@
-# LocalizedStringsTool
+# LocalizableStringsTool
 
 ## What is it
 
-__LocalizedStringsTool__ is a tool that performs `Localizable.strings` analysis and helps you to clean up your translations
+__LocalizableStringsTool__ is a tool that performs `Localizable.strings` analysis and helps you to clean up your translations
 
 Unfortunately Xcode doesn't check translations on compile time,   
-and sometime you see `**user_greating_key**` instead of `Wellcome` in your app.  
-__LocalizedStringsTool__ aims to ensure you that your localization is fine.
+and sometimes you see `**user_greating_key**` instead of `Wellcome` in your app.  
+__LocalizableStringsTool__ aims to ensure you that your localization is fine.
 
 ___If you use [SwiftGen](https://github.com/SwiftGen/SwiftGen "SwiftGen") or [R.swift](https://github.com/mac-cain13/R.swift "R.swift")  you probably don’t need this tool___
 
 ## Main Features
 
-LocalizedStringsTool can help you find:
+LocalizableStringsTool can help you find:
 - Untranslated keys in your code
 - Unused translations 
 - Translation duplications
@@ -20,15 +20,15 @@ LocalizedStringsTool can help you find:
 
 ## How to use
 
-* Prepare your custom settings file `LocalizedStringsTool.plist` otherwise the program will use default settings (see next section for details)
-* Just download [__LocalizedStringsTool executable file__](https://github.com/AndrewPetrov/LocalizedStringsTool/blob/master/Precompiled/LocalizedStringsTool "file") and execute it in your terminal  
+* Prepare your custom settings file `LocalizableStringsTool.plist` otherwise the program will use default settings (see next section for details)
+* Just download [__LocalizableStringsTool executable file__](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Precompiled/LocalizableStringsTool "file") and execute it in your terminal  
 -OR-
 * Clone the project and compile it by yourself
 
 ### Example of the program execution
-![Example](https://github.com/AndrewPetrov/LocalizedStringsTool/blob/master/Images/Screenshot%202021-07-30%20at%2002.17.29.png)
+![Example](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Images/Screenshot%202021-07-30%20at%2002.17.29.png)
 
-## How to set up LocalizedStringsTool.plist
+## How to set up LocalizableStringsTool.plist
 
 ### projectRootFolderPath
 
@@ -56,7 +56,7 @@ default: `false`
 ### differentKeysInTranslations
 Enable or disable searching for key sets difference for language pairs  
 For example “en” has 100 keys and “ru” has 110 keys.  
-Most likely you want to have the same keys amount for any language and now you can see absent or added keys  
+Most likely you want to have the same keys amount for any language, and now you can see absent or added keys  
 default: `true`
 
 ### shouldAnalyzeSwift
@@ -64,7 +64,7 @@ Enable or disable analyzing Swift files
 default: `true`
 
 ### shouldAnalyzeObjC
-Enable or disable analyzing Objective C files  
+Enable or disable analyzing Objective-C files  
 default: `true`
 
 ### customSwiftPatternPrefixes

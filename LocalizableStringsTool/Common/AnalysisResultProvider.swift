@@ -171,8 +171,8 @@ struct AnalysisResultProvider {
     }
 
     static func saveToFile(result: AnalysisResult, allStrings: [String], settingsFileFolder: String) {
-        let outputFilePathUrl = URL(fileURLWithPath: settingsFileFolder + "/LocalizedStringsToolResults.txt")
-        var resultTestString = "        LocalizedStringsToolResults\n"
+        let outputFilePathUrl = URL(fileURLWithPath: settingsFileFolder + "/LocalizableStringsToolResults.txt")
+        var resultTestString = "        LocalizableStringsToolResults\n"
 
         resultTestString += "\n\n   Untranslated Keys:\n\n"
         result.untranslatedKeys.keys.sorted().forEach { langKey in

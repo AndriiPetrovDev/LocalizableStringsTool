@@ -5,7 +5,7 @@
 
 import Foundation
 
-final class LocalizedStringsTool {
+final class LocalizableStringsTool {
     let progressHelper = ProgressLogger()
 
     var swiftFilePathSet = Set<String>()

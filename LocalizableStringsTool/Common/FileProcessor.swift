@@ -224,7 +224,7 @@ struct FileProcessor {
 
     static func readPlist(settingsFilePath: String?, settingsFileFolder: inout String) -> Settings {
         let currentExecutablePath = CommandLine.arguments[0] as NSString
-        let currentSettingsFilePath = currentExecutablePath.deletingLastPathComponent + "/LocalizedStringsTool.plist"
+        let currentSettingsFilePath = currentExecutablePath.deletingLastPathComponent + "/LocalizableStringsTool.plist"
         let path = settingsFilePath ?? currentSettingsFilePath
 
         settingsFileFolder = ((path as NSString).deletingLastPathComponent as String)

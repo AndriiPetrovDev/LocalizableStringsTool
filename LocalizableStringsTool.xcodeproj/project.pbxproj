@@ -13,7 +13,7 @@
 		C98AA479AB0C18514FDD168F /* Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98AA53BAF16069DFD6A0B26 /* Result.swift */; };
 		C98AA48004BC81F6F9437080 /* FilePathProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98AA9CEEEFB959D03C9F461 /* FilePathProvider.swift */; };
 		C98AABD70B074F3D27DEE297 /* ProgressLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98AA3E57DEB72A6FC2CD0AC /* ProgressLogger.swift */; };
-		C98AAC4098409D89FBEC82B6 /* LocalizedStringsTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98AACD883B19D1068749E6D /* LocalizedStringsTool.swift */; };
+		C98AAC4098409D89FBEC82B6 /* LocalizableStringsTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = C98AACD883B19D1068749E6D /* LocalizableStringsTool.swift */; };
 		F4B193B726B2C3B6003B8FD1 /* FileProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B193B626B2C2D4003B8FD1 /* FileProcessor.swift */; };
 		F4B193B826B2C3B9003B8FD1 /* AnalysisResultProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B193B526B2C2D4003B8FD1 /* AnalysisResultProvider.swift */; };
 /* End PBXBuildFile section */
@@ -31,14 +31,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		77FA48CA2333C9B80014651F /* LocalizedStringsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = LocalizedStringsTool; sourceTree = BUILT_PRODUCTS_DIR; };
+		77FA48CA2333C9B80014651F /* LocalizableStringsTool */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = LocalizableStringsTool; path = "/Users/andrewmbp-office/LocalizableStringsTool/build/Debug/LocalizableStringsTool"; sourceTree = "<absolute>"; };
 		77FA48CD2333C9B80014651F /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		C98AA3E57DEB72A6FC2CD0AC /* ProgressLogger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProgressLogger.swift; sourceTree = "<group>"; };
 		C98AA4297EC7F056A86C2068 /* RegExpProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RegExpProvider.swift; sourceTree = "<group>"; };
 		C98AA53BAF16069DFD6A0B26 /* Result.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Result.swift; sourceTree = "<group>"; };
 		C98AA9CEEEFB959D03C9F461 /* FilePathProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FilePathProvider.swift; sourceTree = "<group>"; };
 		C98AAC408CA5E635E4DC937B /* Settings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
-		C98AACD883B19D1068749E6D /* LocalizedStringsTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalizedStringsTool.swift; sourceTree = "<group>"; };
+		C98AACD883B19D1068749E6D /* LocalizableStringsTool.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalizableStringsTool.swift; sourceTree = "<group>"; };
 		F4B193B526B2C2D4003B8FD1 /* AnalysisResultProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalysisResultProvider.swift; sourceTree = "<group>"; };
 		F4B193B626B2C2D4003B8FD1 /* FileProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileProcessor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -57,28 +57,19 @@
 		77FA48C12333C9B80014651F = {
 			isa = PBXGroup;
 			children = (
-				77FA48CC2333C9B80014651F /* LocalizedStringsTool */,
-				77FA48CB2333C9B80014651F /* Products */,
+				77FA48CC2333C9B80014651F /* LocalizableStringsTool */,
 			);
 			sourceTree = "<group>";
 		};
-		77FA48CB2333C9B80014651F /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				77FA48CA2333C9B80014651F /* LocalizedStringsTool */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		77FA48CC2333C9B80014651F /* LocalizedStringsTool */ = {
+		77FA48CC2333C9B80014651F /* LocalizableStringsTool */ = {
 			isa = PBXGroup;
 			children = (
 				77FA48CD2333C9B80014651F /* main.swift */,
-				C98AACD883B19D1068749E6D /* LocalizedStringsTool.swift */,
+				C98AACD883B19D1068749E6D /* LocalizableStringsTool.swift */,
 				F4B193B426B2C2D4003B8FD1 /* Common */,
 				C98AA00C15CFA8208C289381 /* Models */,
 			);
-			path = LocalizedStringsTool;
+			path = LocalizableStringsTool;
 			sourceTree = "<group>";
 		};
 		C98AA00C15CFA8208C289381 /* Models */ = {
@@ -105,9 +96,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		77FA48C92333C9B80014651F /* LocalizedStringsTool */ = {
+		77FA48C92333C9B80014651F /* LocalizableStringsTool */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 77FA48D12333C9B80014651F /* Build configuration list for PBXNativeTarget "LocalizedStringsTool" */;
+			buildConfigurationList = 77FA48D12333C9B80014651F /* Build configuration list for PBXNativeTarget "LocalizableStringsTool" */;
 			buildPhases = (
 				77FA48C62333C9B80014651F /* Sources */,
 				77FA48C72333C9B80014651F /* Frameworks */,
@@ -117,9 +108,9 @@
 			);
 			dependencies = (
 			);
-			name = LocalizedStringsTool;
+			name = LocalizableStringsTool;
 			productName = LocalizedStringsTool;
-			productReference = 77FA48CA2333C9B80014651F /* LocalizedStringsTool */;
+			productReference = 77FA48CA2333C9B80014651F /* LocalizableStringsTool */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -137,7 +128,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 77FA48C52333C9B80014651F /* Build configuration list for PBXProject "LocalizedStringsTool" */;
+			buildConfigurationList = 77FA48C52333C9B80014651F /* Build configuration list for PBXProject "LocalizableStringsTool" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -145,11 +136,11 @@
 				en,
 			);
 			mainGroup = 77FA48C12333C9B80014651F;
-			productRefGroup = 77FA48CB2333C9B80014651F /* Products */;
+			productRefGroup = 77FA48C12333C9B80014651F;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				77FA48C92333C9B80014651F /* LocalizedStringsTool */,
+				77FA48C92333C9B80014651F /* LocalizableStringsTool */,
 			);
 		};
 /* End PBXProject section */
@@ -166,7 +157,7 @@
 				F4B193B826B2C3B9003B8FD1 /* AnalysisResultProvider.swift in Sources */,
 				C98AA1F0105368196B553738 /* RegExpProvider.swift in Sources */,
 				C98AA48004BC81F6F9437080 /* FilePathProvider.swift in Sources */,
-				C98AAC4098409D89FBEC82B6 /* LocalizedStringsTool.swift in Sources */,
+				C98AAC4098409D89FBEC82B6 /* LocalizableStringsTool.swift in Sources */,
 				C98AABD70B074F3D27DEE297 /* ProgressLogger.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -312,7 +303,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		77FA48C52333C9B80014651F /* Build configuration list for PBXProject "LocalizedStringsTool" */ = {
+		77FA48C52333C9B80014651F /* Build configuration list for PBXProject "LocalizableStringsTool" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				77FA48CF2333C9B80014651F /* Debug */,
@@ -321,7 +312,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		77FA48D12333C9B80014651F /* Build configuration list for PBXNativeTarget "LocalizedStringsTool" */ = {
+		77FA48D12333C9B80014651F /* Build configuration list for PBXNativeTarget "LocalizableStringsTool" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				77FA48D22333C9B80014651F /* Debug */,
