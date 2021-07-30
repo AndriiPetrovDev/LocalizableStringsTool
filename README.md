@@ -69,14 +69,16 @@ default: `true`
 
 ### customSwiftPatternPrefixes
 If you use some custom wrappers for `NSLocalizedString("key", "comment")`  
-For example it can be `lang(“myKey”)` and you should add here `lang(`
+For example it can be `lang(“myKey”)` and you should add here `lang(`  
+default: `NSLocalizedString(`
 
 ### customSwiftPatternSuffixes
 The same but for suffixes.   
 Add `.localized` if you use `“myKey”.localized` instead of `NSLocalizedString("key", "comment")`
 
 ### customObjCPatternPrefixes
-The same but for Obj C.   
+The same but for Obj C.  
+default: `NSLocalizedString(`
 
 Also add here prefixes that can help the program to find keys in source code
 For example if you use keys as func parameters and made localisation inside it.
@@ -108,7 +110,8 @@ For example somebody uses `ic_` as prefix for all icons.
 
 ### keyNamePattern
 Some specific rules for all your keys  
-Example: `[_a-z0-9]*[_][a-z0-9]+` for Snake case
+Example: `[_a-z0-9]*[_][a-z0-9]+` for `snake_case`.   
+default: `[.]+`
 
 ### excludedUnusedKeys
 Keys that the program mistakenly marks as unused  
