@@ -24,7 +24,7 @@ LocalizableStringsTool can help you find:
 
 * Prepare your custom settings file `LocalizableStringsTool.plist` otherwise the program will use default settings (see next section for details)  
 Please check [__PlistExample__](https://github.com/AndrewPetrov/LocalizableStringsTool/tree/master/PlistExample "PlistExample")  folder for reference
-* Just download [__LocalizableStringsTool executable file__](https://github.com/AndrewPetrov/LocalizableStringsTool/blob/master/Precompiled/LocalizableStringsTool "file") and execute it in your terminal  
+* Just download [__LocalizableStringsTool executable file__](https://github.com/AndrewPetrov/LocalizableStringsTool/releases "file") from the latest release and execute it in your terminal  
 -OR-
 * Clone the project and compile it by yourself
 * When the work is finished you will get the brief result in the terminal and a detailed one in `LocalizableStringsToolResults.txt` file
